@@ -92,9 +92,9 @@ function Mascot({ small = false }: { small?: boolean }) {
             <ellipse cx="72" cy="210" rx="24" ry="53" transform="rotate(16 72 210)" fill={shell} stroke="#e2e9df" />
           </g>
           <g className="bay-wave">
-            <ellipse cx="230" cy="189" rx="24" ry="51" transform="rotate(-32 230 189)" fill={shell} stroke="#e2e9df" />
-            <ellipse cx="251" cy="151" rx="24" ry="26" fill={shell} />
-            <path d="m251 133 2 8m8-3 1 7" fill="none" stroke="#e0e7dc" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M207 234 C193 223 193 207 205 187 L230 140 C236 128 249 124 259 131 C270 139 272 153 265 167 L246 211 C238 232 221 244 207 234Z"
+              fill={shell} stroke="#e2e9df" />
+            <path d="m250 139 3 9" fill="none" stroke="#dce5d8" strokeWidth="2" strokeLinecap="round" />
           </g>
           <ellipse cx="150" cy="217" rx="79" ry="78" fill={shell} stroke="#dce5d8" />
           <ellipse cx="140" cy="232" rx="51" ry="43" fill="#fff" opacity=".28" />
