@@ -14,8 +14,8 @@ Open http://localhost:3100/Baymax-Launch. No exported video is included.
 
 ## Source
 
-- `src/LaunchVideo.tsx`: intro, chapters, captions, and closing card.
-- `src/scene-data.json`: chapter timing and captions.
+- `src/LaunchVideo.tsx`: intro, chapter headlines, and closing card.
+- `src/scene-data.json`: chapter timing and interaction beat labels (not displayed as captions).
 - `src/demo/DemoApp.tsx`: onboarding, daily care, travel, and doctor brief scenes.
 - `src/demo/PrescriptionShoppingCard.tsx`: prescription UI adapted from the app with deterministic demo state.
 - `src/demo/demo-app.css` and `src/video.css`: large UI typography and presentation layout.
@@ -38,3 +38,11 @@ Visual direction: minimal wording, clean component demos, sage Baymax branding, 
 `src/demo/Interaction.tsx` defines the scene-local click schedule. Cursor cues are anchored inside their target controls. Typing, checkbox changes, pharmacy selection, quantity changes, and confirmation states follow frame-based events. These are illustrative interactions, not live backend operations.
 
 Production guidance: [launch-video](https://github.com/jerelvelarde/demo-skills/blob/main/skills/launch-video/SKILL.md) and [ui-mockup-video](https://github.com/jerelvelarde/demo-skills/blob/main/skills/ui-mockup-video/SKILL.md), reviewed at commit `b7410ac`. Review is in Studio; no video export was rendered.
+
+## OpenDots reference pass
+
+Visual reference: user-supplied `OpenDots-Storyboard-v3-1080p.mp4` (1920×1080, 30 fps, 86 seconds). Sampled frames were inspected for title hierarchy, demo framing, backgrounds, and mascot placement. The reference video and audio are not bundled or reused.
+
+The Baymax adaptation keeps its approximately 57-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Each chapter now has one persistent 96px headline above a wider demo canvas, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
+
+Claims remain limited to the example UI: conversation, daily care steps, travel preparation, simulated refill review, and a health-brief email draft. No backend execution is implied. TypeScript and representative intro/demo/outro frames were checked in Studio; no video export was rendered.
