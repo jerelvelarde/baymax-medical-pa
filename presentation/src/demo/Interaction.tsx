@@ -3,6 +3,9 @@ import {interpolate} from 'remotion';
 
 // Scene-local frames: arrive, press, then change state. Holds follow each action.
 export const events:Record<string,Record<string,number>>={
+ 'onboarding:0':{'Stay on top of medications':20,'Prepare for appointments':45,'Set my goals':82},
+ 'onboarding:1':{'Choose files':25},
+ 'onboarding:2':{'Review details':35,'Save and continue':78},
  'welcome:1':{'Let’s take care of you':32},
  'welcome:2':{'Today':50},
  'care:0':{'Send':32},

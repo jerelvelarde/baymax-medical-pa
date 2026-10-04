@@ -1,6 +1,6 @@
 # Baymax launch presentation
 
-An editable, approximately 65-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
+An editable, approximately 70-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
 
 ## Open Remotion Studio
 
@@ -43,7 +43,7 @@ Production guidance: [launch-video](https://github.com/jerelvelarde/demo-skills/
 
 Visual reference: user-supplied `OpenDots-Storyboard-v3-1080p.mp4` (1920×1080, 30 fps, 86 seconds). Sampled frames were inspected for title hierarchy, demo framing, backgrounds, and mascot placement. The reference video and audio are not bundled or reused.
 
-The Baymax adaptation keeps its approximately 65-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Feature-specific compositions replace the shared full-width app shell: a compact conversation, a checklist with its action, centered energy and travel cards, a vertical refill card, and wider document review. Headlines sit beside focused tasks or above centered cards, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
+The Baymax adaptation keeps its approximately 70-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Feature-specific compositions replace the shared full-width app shell: a compact conversation, a checklist with its action, centered energy and travel cards, a vertical refill card, and wider document review. Headlines sit beside focused tasks or above centered cards, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
 
 Claims remain limited to the example UI: conversation, daily care steps, travel preparation, simulated refill review, and a health-brief email draft. No backend execution is implied. TypeScript and representative intro/demo/outro frames were checked in Studio; no video export was rendered.
 
@@ -52,3 +52,5 @@ The reminder card scene recreates the user-supplied Baymax reminder UI as editab
 Prescription browsing uses three image-led pharmacy cards with a locally bundled sample refill image in `public/medicines/`. These represent the same sample refill, not alternative medication recommendations. Selected packaging carries into the review card; pharmacy names, availability, and prices remain illustrative.
 
 Reminders are presented as large standalone cards with staggered entrances; the device frame and lock-screen chrome have been removed.
+
+Onboarding now opens with selectable care-goal cards, followed by adding a PDF and prescription image, reviewing extracted medical details, and a completion state. Files and extraction results are illustrative local UI states; no upload or OCR backend runs. `src/demo/OnboardingDemo.tsx` contains this sequence.

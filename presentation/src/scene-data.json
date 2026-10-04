@@ -1,25 +1,25 @@
 [
   {
     "id": "welcome",
-    "title": "Say hello.",
-    "subtitle": "Start with a conversation. Keep your care close.",
-    "durationInFrames": 215,
+    "title": "Your goals. Your care.",
+    "subtitle": "Choose goals, add medical records, and review your details.",
+    "durationInFrames": 370,
     "captions": [
       {
-        "at": 0.0,
-        "text": "Your space."
+        "at": 0,
+        "text": "Choose your goals."
       },
       {
-        "at": 1.578,
-        "text": "Hello, Alex."
+        "at": 3.3333333333333335,
+        "text": "Add medical records."
       },
       {
-        "at": 2.891,
-        "text": "Just ask."
+        "at": 6.666666666666667,
+        "text": "Review your details."
       },
       {
-        "at": 4.895,
-        "text": "Care, together."
+        "at": 10,
+        "text": "Ready for you."
       }
     ]
   },

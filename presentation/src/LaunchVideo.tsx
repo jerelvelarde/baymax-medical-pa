@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import sceneData from './scene-data.json';
+import {OnboardingDemo} from './demo/OnboardingDemo';
 import {ReminderDemo} from './demo/ReminderDemo';
 import {DemoApp} from './demo/DemoApp';
 import {MascotSprite} from './demo/MascotSprite';
@@ -27,6 +28,7 @@ export const DemoChapter:React.FC<{scene:DemoScene;index:number}>=({scene,index}
  const current=Math.max(0,scene.captions.findLastIndex(c=>c.at*fps<=f));
  const captionAt=Math.round((scene.captions[current]?.at??0)*fps);
  const enter=interpolate(f,[0,12],[0,1],clamp);
+ if(scene.id==='welcome')return <AbsoluteFill className="canvas onboarding-scene"><div className="onboarding-copy"><div className="scene-kicker">MEET BAYMAX</div><h1>{f<100?<>Your goals.<br/>Your care.</>:f<300?<>A little<br/>context.<br/>Better care.</>:<>Ready<br/>for you.</>}</h1></div><OnboardingDemo/></AbsoluteFill>;
  if(scene.id==='reminders')return <AbsoluteFill className="canvas reminder-scene"><div className="reminder-copy"><div className="scene-kicker">BAYMAX · REMINDERS</div><h2>Small steps.<br/>Big Baymax<br/>energy.</h2><p>A little nudge.<br/>You choose when.</p></div><ReminderDemo/></AbsoluteFill>;
  const wide=(scene.id==='welcome'&&current===3)||(scene.id==='care'&&current===5)||scene.id==='brief'||(scene.id==='travel'&&current===3);
  const mode=wide?'overview':scene.id==='prescription'?'refill':scene.id==='care'&&current===0?'conversation':scene.id==='travel'?'travel':'personal';
