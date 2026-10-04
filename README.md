@@ -36,6 +36,12 @@ SVG animation with gentle breathing, waving, and blinking. Respects reduced-moti
 
 ## Run locally
 
+### Hackathon presentation
+
+The five-slide HTML deck lives in [public/presentation/index.html](public/presentation/index.html). Open it directly in a browser, or visit `/presentation/` when running the app. Use the navigation buttons or arrow keys to change slides. Fullscreen and printing all five slides are supported.
+
+To add the demo, place `demo.mp4` in `public/presentation/` and replace the placeholder with the video markup included in the HTML comment. The deck preserves the original PowerPoint's content and design, including its planned-MVP framing.
+
 Requires Node.js 22+.
 
 ```bash
@@ -166,4 +172,3 @@ Baymax is intended to support organization, habits, and healthcare conversations
 ---
 
 **Baymax: caring enough to remind you again.**
-
