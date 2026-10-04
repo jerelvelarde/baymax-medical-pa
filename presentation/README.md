@@ -1,6 +1,6 @@
 # Baymax launch presentation
 
-An editable, approximately 88-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
+An editable, approximately 98-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
 
 ## Open Remotion Studio
 
@@ -43,7 +43,7 @@ Production guidance: [launch-video](https://github.com/jerelvelarde/demo-skills/
 
 Visual reference: user-supplied `OpenDots-Storyboard-v3-1080p.mp4` (1920×1080, 30 fps, 86 seconds). Sampled frames were inspected for title hierarchy, demo framing, backgrounds, and mascot placement. The reference video and audio are not bundled or reused.
 
-The Baymax adaptation keeps its approximately 88-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Feature-specific compositions replace the shared full-width app shell: a compact conversation, a checklist with its action, centered energy and travel cards, a vertical refill card, and wider document review. Headlines sit beside focused tasks or above centered cards, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
+The Baymax adaptation keeps its approximately 98-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Feature-specific compositions replace the shared full-width app shell: a compact conversation, a checklist with its action, centered energy and travel cards, a vertical refill card, and wider document review. Headlines sit beside focused tasks or above centered cards, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
 
 Claims remain limited to the example UI: conversation, daily care steps, travel preparation, simulated refill review, and a health-brief email draft. No backend execution is implied. TypeScript and representative intro/demo/outro frames were checked in Studio; no video export was rendered.
 
@@ -82,3 +82,9 @@ The prescription chapter uses an adult example with an existing type 2 diabetes 
 These are illustrative catalog entries, not a personal treatment plan, medication recommendation, live availability, or insurance quote. The flow selects glucose tablets, adds a second tube, and reviews the $4.98 example total. No prescription quantity or medication dose is changed. Marathon training, fueling, monitoring, and medication plans should be individualized with the diabetes care team; the demo provides no dosing or exercise thresholds.
 
 Generic product photos were generated for this presentation, then bundled as JPEGs in `public/medicines/marathon/`. They are illustrative packaging, not manufacturer images or product-identification references. Medical context checked against [ADA exercise guidance](https://diabetes.org/health-wellness/fitness/getting-started-safely) and [ADA blood glucose and exercise](https://diabetes.org/health-wellness/fitness/why-does-exercise-sometimes-raise-blood-sugar). No external image runtime dependency. The browse and review states were checked in Studio; no video export rendered.
+
+## Use-case recap and privacy beat
+
+A five-second privacy slide follows the medical-record upload, before reviewing extracted details. It says “Your privacy comes first” and “Working toward HIPAA readiness,” with an explicit ongoing compliance-review/deployment-qualification status. This follows the repository's documented readiness limits; it does not assert that Baymax or a deployment is HIPAA compliant. Onboarding review and completion retain their original interaction timing after the inserted beat.
+
+A five-second recap before the open-source closing card summarizes medical records, daily care/reminders, refills/supplies, travel preparation, doctor briefs, and the shared computer. Both slides are editable components in `src/demo/OverviewSlides.tsx`. The full composition is now 2,933 frames (97.77 seconds at 30 fps).

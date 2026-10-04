@@ -3,7 +3,7 @@
     "id": "welcome",
     "title": "Your goals. Your care.",
     "subtitle": "Choose goals, add medical records, and review your details.",
-    "durationInFrames": 370,
+    "durationInFrames": 520,
     "captions": [
       {
         "at": 0,
@@ -15,10 +15,14 @@
       },
       {
         "at": 6.666666666666667,
+        "text": "Your privacy comes first."
+      },
+      {
+        "at": 11.666666666666666,
         "text": "Review your details."
       },
       {
-        "at": 10,
+        "at": 15,
         "text": "Ready for you."
       }
     ]
@@ -180,6 +184,18 @@
       {
         "at": 7.432,
         "text": "Ready to share."
+      }
+    ]
+  },
+  {
+    "id": "summary",
+    "title": "A little help, across your care.",
+    "subtitle": "Six key use cases, one personal medical agent.",
+    "durationInFrames": 150,
+    "captions": [
+      {
+        "at": 0,
+        "text": "Your care, connected."
       }
     ]
   }
