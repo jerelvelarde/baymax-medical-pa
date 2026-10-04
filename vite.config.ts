@@ -4,6 +4,10 @@ export default defineConfig({
     host: "0.0.0.0",
     watch: { usePolling: true },
     // Mastra dev server (npm run agent:dev)
-    proxy: { "/api": "http://localhost:4111" },
+    proxy: {
+      "/api": "http://localhost:4111",
+      "/travel": "http://localhost:4111",
+      "/health": "http://localhost:4111",
+    },
   },
 });

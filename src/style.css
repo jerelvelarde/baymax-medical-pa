@@ -343,6 +343,44 @@ header b {
   letter-spacing: 1.6px;
   color: #819273;
 }
+.bay-body {
+  animation: breathe 4s ease-in-out infinite;
+  transform-origin: 150px 300px;
+}
+.wave {
+  animation: wave 4s ease-in-out infinite;
+  transform-origin: 215px 205px;
+}
+.eyes {
+  animation: blink 5s infinite;
+  transform-origin: 150px 106px;
+}
+@keyframes breathe {
+  50% {
+    transform: translateY(-3px) scale(1.012);
+  }
+}
+@keyframes wave {
+  10%,
+  20% {
+    transform: rotate(9deg);
+  }
+  15%,
+  25% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes blink {
+  0%,
+  43%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.08);
+  }
+}
 .section-heading {
   display: flex;
   align-items: center;
@@ -1611,6 +1649,9 @@ header > .icon {
   .modal {
     padding: 25px 22px;
   }
+  .agent-header .small .wave {
+    animation: none;
+  }
 }
 .chat-first {
   height: 100dvh;
@@ -1618,6 +1659,111 @@ header > .icon {
 }
 .chat-first .chat-panel {
   padding: 0;
+}
+
+/* Travel: right panel slides in after "Prepare checklist" */
+.slide-panel {
+  opacity: 0;
+  transform: translateX(48px);
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease,
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.55s;
+}
+.slide-panel.revealed {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  visibility: visible;
+  transition-delay: 0s;
+}
+@media (max-width: 1000px) {
+  .slide-panel:not(.revealed) {
+    display: none;
+  }
+  .slide-panel {
+    transform: translateY(24px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-panel {
+    transition: none;
+  }
+}
+.skeleton-line {
+  height: 14px;
+  margin: 18px 0;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9ede6, #f5f7f2, #e9ede6);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.cta-brief {
+  width: 100%;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.week-panel {
+  margin-top: 22px;
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.week-day small {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  color: #89947f;
+  text-transform: uppercase;
+}
+.energy-dot {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #edf0e9;
+}
+.energy-dot.low {
+  background: #a5b4c2;
+}
+.energy-dot.okay {
+  background: #c9d1a8;
+}
+.energy-dot.good {
+  background: #e3c77f;
+}
+.energy-dot.great {
+  background: #e8a85c;
+}
+.week-bar {
+  display: flex;
+  align-items: flex-end;
+  height: 56px;
+  width: 100%;
+  max-width: 28px;
+  background: #edf1f4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.week-bar i {
+  display: block;
+  width: 100%;
+  background: #a3bfd0;
 }
 
 /* Authored sprite frames share one canvas, scale and planted-feet anchor. */
