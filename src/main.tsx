@@ -68,6 +68,8 @@ import "./components/prescription-shopping.css";
 import { ActivityOnboarding, FitnessDashboard, FITNESS_CHANGED, fitnessRequest, type SavedPreferences } from "./components/Fitness";
 import type { FitnessOverview } from "./mastra/lib/fitness";
 import { AppleHealthConnection } from './components/AppleHealthConnection';
+import { Today } from './components/Today';
+import './ui-refresh.css';
 
 // Triggers the agent to read all of the user's health data and answer with a
 // week-in-review, which also renders the water, movement, sleep, energy and
@@ -988,6 +990,8 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
   }), [conversationId]);
   const attachmentAdapter = useMemo(() => createAttachmentAdapter(conversationId), [conversationId]);
   const [showShopping, setShowShopping] = useState(false);
+  const [showActions, setShowActions] = useState(false);
+  const [hasMessages, setHasMessages] = useState(conversation.messages.length > 0);
   const runtime = useLocalRuntime(adapter, { adapters: { attachments: attachmentAdapter } });
   const initialConversation = useRef(conversation);
   const restored = useRef(false);
@@ -999,7 +1003,9 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
       runtime.thread.import({ ...repository, messages: repository.messages.map(item => ({ ...item, message: { ...item.message, createdAt: new Date(item.message.createdAt) } })) } as unknown as ExportedMessageRepository);
     }
     const unsubscribe = runtime.thread.subscribe(() => {
-      if (runtime.thread.getState().isRunning) return;
+      const thread = runtime.thread.getState();
+      setHasMessages(thread.messages.length > 0);
+      if (thread.isRunning) return;
       const serialized = JSON.stringify(runtime.thread.export());
       if (serialized !== lastExport.current) {
         lastExport.current = serialized;
@@ -1025,26 +1031,22 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
       <HealthTool />
       <WebSearchTool />
       <ThreadPrimitive.Root className="chat">
-        <ThreadPrimitive.Viewport className="transcript">
+        <ThreadPrimitive.Viewport className="transcript" autoScroll={hasMessages} scrollToBottomOnInitialize={hasMessages}>
           {!showShopping && <ThreadPrimitive.Empty>
             <div className="chat-welcome">
-              <Mascot small />
-              <h2>Hello. I am Baymax.</h2>
-              <p>Your personal care companion. What’s on your mind?</p>
-              <div className="suggestions">
+              <div className="conversation-intro"><Mascot small /><span>Baymax<span className="note-dot" aria-hidden="true" /></span></div>
+              <h2>What’s on your mind{workspace.name.trim() ? <>,<br /><em>{workspace.name.trim()}?</em></> : '?'}</h2>
+              <p>Bloodwork, a bad night’s sleep, or just a question.<br className="desktop-break" /> We can start anywhere.</p>
+              <div className="suggestions" aria-label="Conversation starters">
                 {[
-                  WEEKLY_SUMMARY_PROMPT,
-                  "I need a diabetes medication refill while travelling",
-                  "Draft and email a brief to my doctor",
-                ].map((s) => (
-                  <ThreadPrimitive.Suggestion
-                    key={s}
-                    prompt={s}
-                    method="replace"
-                    autoSend
-                  >
-                    {s}
-                    <ArrowUpRight size={16} />
+                  { prompt: WEEKLY_SUMMARY_PROMPT, title: "How has my week looked?", detail: "Look at the patterns", Icon: Activity },
+                  { prompt: "Help me understand my latest bloodwork", title: "Talk me through my bloodwork", detail: "Make sense of my records", Icon: FileText },
+                  { prompt: "Help me prepare a brief for my next doctor appointment", title: "Get me ready for my doctor", detail: "Bring the right questions", Icon: ArrowUpRight },
+                ].map(({ prompt, title, detail, Icon }, index) => (
+                  <ThreadPrimitive.Suggestion key={prompt} prompt={prompt} method="replace" autoSend className="welcome-action">
+                    <span className="welcome-action-number">0{index + 1}</span>
+                    <span className="welcome-action-copy"><strong>{title}</strong><small>{detail}</small></span>
+                    <Icon className="welcome-action-arrow" size={19} aria-hidden="true" />
                   </ThreadPrimitive.Suggestion>
                 ))}
               </div>
@@ -1061,31 +1063,20 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
             Baymax is responding…
           </div>
         </ThreadPrimitive.If>
-        <div className="quick-actions">
-          <button type="button" onClick={() => setShowShopping(value => !value)} aria-expanded={showShopping}>{showShopping ? "Hide shopping demo" : "Shopping demo"}</button>
+        <div className="chat-tools">
+          <span>Bring the details. I’ll help sort them out.</span>
+          <button type="button" className="text-btn" aria-expanded={showActions} aria-controls="chat-more-actions" onClick={() => setShowActions(value => !value)}>More ways I can help <Plus size={14} /></button>
+        </div>
+        {showActions && <div className="quick-actions" id="chat-more-actions">
+          <button type="button" onClick={() => setShowShopping(value => !value)} aria-expanded={showShopping}>{showShopping ? "Close medication options" : "Medication options (demo)"}</button>
           {[
             { label: "Weekly summary", prompt: WEEKLY_SUMMARY_PROMPT },
             { label: "Fitness", prompt: "Open my fitness dashboard" },
-            { label: "Activity setup", prompt: "Start my activity onboarding" },
-            {
-              label: "Prescription",
-              prompt: "I need a diabetes medication refill while travelling",
-            },
-            {
-              label: "Doctor brief",
-              prompt: "Draft and email a brief to my doctor",
-            },
-          ].map((a) => (
-            <ThreadPrimitive.Suggestion
-              key={a.label}
-              prompt={a.prompt}
-              method="replace"
-              autoSend
-            >
-              {a.label}
-            </ThreadPrimitive.Suggestion>
-          ))}
-        </div>
+            { label: "Set movement goals", prompt: "Start my activity onboarding" },
+            { label: "Medication refill", prompt: "Help me arrange a medication refill while travelling" },
+            { label: "Doctor brief", prompt: "Draft a brief for my doctor" },
+          ].map(action => <ThreadPrimitive.Suggestion key={action.label} prompt={action.prompt} method="replace" autoSend>{action.label}</ThreadPrimitive.Suggestion>)}
+        </div>}
         <ComposerPrimitive.Root className="composer">
           <ComposerPrimitive.Attachments
             components={{ Attachment: ComposerAttachment }}
@@ -1095,10 +1086,10 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
             aria-label="Attach a medical record"
             title="Attach a text file (txt, md, csv, json)"
           >
-            <Plus size={19} />
+            <Plus size={19} /><span className="attach-label">Record</span>
           </ComposerPrimitive.AddAttachment>
           <ComposerPrimitive.Input
-            placeholder="Tell Baymax what you need…"
+            placeholder="Tell me what’s going on…"
             aria-label="Message Baymax"
           />
           <ThreadPrimitive.If running={false}>
@@ -1115,7 +1106,7 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
             </ComposerPrimitive.Cancel>
           </ThreadPrimitive.If>
         </ComposerPrimitive.Root>
-        <p className="fine center">A little care. Always in your control.</p>
+        <p className="fine center">Your space to ask. Your choice what to share.</p>
       </ThreadPrimitive.Root>
     </AssistantRuntimeProvider>
   );
@@ -1206,9 +1197,12 @@ const nav = [
   ["Travel care", Plane],
   ["Doctor brief", FileText],
 ] as const;
+const NAV_LABELS: Record<string, string> = {
+  'Talk to Baymax': 'Talk', 'Today': 'Today', 'Your plan': 'Plan', 'Physical fitness': 'Activity', 'Running': 'Running', 'Travel care': 'Travel', 'Doctor brief': 'Doctor brief',
+};
 function App() {
   const [responding, setResponding] = useState(false);
-  const [page, setPage] = useState("Talk to Baymax");
+  const [page, setPage] = useState("Today");
   const [modal, setModal] = useState("");
   const [preferencesLoading, setPreferencesLoading] = useState(true);
   const [fitnessPreferences, setFitnessPreferences] = useState<SavedPreferences>();
@@ -1295,14 +1289,18 @@ function App() {
     setWater(water + 1);
     void saveHealth("/health/water", { ml: GLASS_ML });
   };
-  const saveEnergy = () => {
-    void saveHealth("/health/checkin", { energy: energy.toLowerCase() });
+  const saveEnergy = async (value: CareWorkspace["energy"] = energy) => {
+    const response = await saveHealth("/health/checkin", { energy: value.toLowerCase() });
+    if (!response?.ok) { notify("Your check-in didn’t save. Please try again."); return false; }
+    setEnergy(value);
     const today = new Date().toLocaleDateString("en-CA");
     setWeek((w) =>
       w.map((d) =>
-        d.date === today ? { ...d, energy: energy.toLowerCase() as "low" | "okay" | "good" | "great" } : d,
+        d.date === today ? { ...d, energy: value.toLowerCase() as "low" | "okay" | "good" | "great" } : d,
       ),
     );
+    notify("Check-in saved. I’m keeping that in mind.");
+    return true;
   };
   const download = () => {
     const u = URL.createObjectURL(new Blob([brief], { type: "text/plain" }));
@@ -1372,7 +1370,10 @@ function App() {
   const go = (s: string) => {
     setPage(s);
     setMobile(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   if (persistence.loading || persistence.loadError) return (
     <div className="app-loading" role="status">
       <Mascot small />
@@ -1412,7 +1413,7 @@ function App() {
       }}
     >
       <div className={`app ${page === "Talk to Baymax" ? "chat-first" : ""}`}>
-        <aside className={mobile ? "sidebar open" : "sidebar"}>
+        <aside id="app-navigation" className={mobile ? "sidebar open" : "sidebar"}>
           <a
             className="brand"
             href="#"
@@ -1424,34 +1425,25 @@ function App() {
             <span className="logo-face">●―●</span> baymax
             <span className="brand-dot">.</span>
           </a>
-          <div className="workspace">
-            <span className="tiny-dot" /> YOUR PERSONAL CARE SPACE
-          </div>
-          <nav>
+          <div className="workspace">YOUR HEALTH JOURNAL</div>
+          <nav aria-label="Desktop navigation">
             {nav.map(([s, I]) => (
               <button
                 key={s}
                 className={page === s ? "nav active" : "nav"}
+                aria-current={page === s ? 'page' : undefined}
                 onClick={() => go(s)}
               >
                 <I size={19} />
-                {s}
-                {s === "Talk to Baymax" && <span className="new-dot" />}
+                {NAV_LABELS[s]}
+                {s === "Talk to Baymax" && <span className="nav-companion-dot" aria-hidden="true" />}
               </button>
             ))}
           </nav>
           <div className="side-bottom">
-            <div className="care-note">
-              <Heart size={18} />
-              <p>
-                A little care.
-                <br />
-                Every single day.
-              </p>
-            </div>
-            <button className="nav" onClick={() => go("Privacy & preferences")}>
-              <ShieldCheck size={19} />
-              Privacy & preferences
+            <div className="sidebar-signoff"><span className="signoff-line" /><p>On your side.<br /><em>Even when you forget.</em></p></div>
+            <button className={`nav settings-nav ${page === "Privacy & preferences" ? "active" : ""}`} aria-current={page === "Privacy & preferences" ? 'page' : undefined} onClick={() => go("Privacy & preferences")}>
+              <Settings size={18} /> Privacy & preferences
             </button>
             <button className="profile" onClick={() => setModal("profile")}>
               <span className="avatar">{name[0]?.toUpperCase()}</span>
@@ -1468,19 +1460,17 @@ function App() {
             <button
               className="mobile-menu icon"
               aria-label="Open navigation"
+              aria-expanded={mobile}
+              aria-controls="app-navigation"
               onClick={() => setMobile(!mobile)}
             >
               <Menu size={21} />
             </button>
-            <button
-              className="agent-header"
-              onClick={() => setModal("checkin")}
-              aria-label="Baymax daily check-in"
-            >
-              <Mascot small />
-              <b>Baymax</b>
-              <small>Here when you need me</small>
-            </button>
+            <div className="header-location"><span className="header-brand">baymax.</span><span className="header-section">{page === 'Talk to Baymax' ? 'Conversation' : NAV_LABELS[page] ?? page}</span></div>
+            <div className="persistence-status" role="status">
+              <ShieldCheck size={14} /><span>{persistence.status}</span>
+              {persistence.error && <><span role="alert">{persistence.error}</span><button className="text-btn" disabled={persistence.busy} onClick={async () => { if (await persistence.retry()) { setModal(""); setPage("Talk to Baymax"); } }}>Try again</button></>}
+            </div>
             <button
               className="icon"
               aria-label="Reminder settings"
@@ -1489,277 +1479,47 @@ function App() {
               <Bell size={20} />
             </button>
           </header>
-          <div className="content">
-            <div className="persistence-status" role="status">
-              <ShieldCheck size={14} /><span>{persistence.status}</span>
-              {persistence.error && <><span role="alert">{persistence.error}</span><button className="text-btn" disabled={persistence.busy} onClick={async () => { if (await persistence.retry()) { setModal(""); setPage("Talk to Baymax"); } }}>Try again</button></>}
-            </div>
+          <div className="content" data-page={page}>
             <div className="page-heading">
               <div>
-                <p className="eyebrow">A LITTLE CARE GOES A LONG WAY</p>
+                {page === 'Today' && <p className="eyebrow">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>}
                 <h1>
                   {page === "Today"
-                    ? `Good morning, ${name}.`
+                    ? `${greeting}, ${name}.`
                     : page === "Talk to Baymax"
                       ? "Let’s talk."
                       : page === "Your plan"
-                        ? "Make space for yourself."
+                        ? "Your plan."
                         : page === "Physical fitness"
-                          ? "A little movement. Every day."
+                          ? "Keep moving."
                         : page === "Running"
-                          ? "One foot, then the other."
+                          ? "Your running log."
                         : page === "Travel care"
-                          ? "Care, wherever you go."
+                          ? "Ready for your trip."
                           : page === "Doctor brief"
-                            ? "Your story. A little clearer."
-                            : "Your care. Your rules."}
+                            ? "For your doctor."
+                            : "Privacy & preferences."}
                 </h1>
                 <p>
                   {page === "Today"
-                    ? "You’re building something great. Let’s take care of you, too."
+                    ? "Let’s make a bit of room for you."
                     : page === "Talk to Baymax"
                       ? "No judgment. Just a companion in your corner."
                       : page === "Your plan"
-                        ? "Small, sustainable steps for the days ahead."
+                        ? "What you’re working toward, and what comes next."
                         : page === "Physical fitness"
-                          ? "Find your rhythm, set your goals, and watch the little things add up."
+                          ? "Your steps, your minutes, your own pace."
                         : page === "Running"
-                          ? "Every mile is yours. Go at your own pace."
+                          ? "Distance, time, and the runs that add up."
                         : page === "Travel care"
-                          ? "A little preparation makes a new place feel less unfamiliar."
+                          ? "Medication, documents, and a plan for care while you’re away."
                           : page === "Doctor brief"
-                            ? "Bring your context to your next conversation with a doctor."
+                            ? "Your records and questions, ready for the appointment."
                             : "Choose what Baymax remembers and how often it checks in."}
                 </p>
               </div>
-              {page === "Today" && (
-                <button className="outline" onClick={() => setModal("checkin")}>
-                  Daily check-in <ArrowUpRight size={16} />
-                </button>
-              )}
             </div>
-            {page === "Today" && (
-              <>
-                <section className="hero">
-                  <div className="hero-copy">
-                    <span className="pill">
-                      <Sparkles size={13} /> YOUR COMPANION, CHECKING IN
-                    </span>
-                    <h2>
-                      How are you feeling
-                      <br />
-                      on the inside?
-                    </h2>
-                    <p>
-                      You remembered your laptop charger.
-                      <br />
-                      Did you remember to recharge yourself?
-                    </p>
-                    <button
-                      className="primary"
-                      onClick={() => setModal("checkin")}
-                    >
-                      {energy
-                        ? "Update your check-in"
-                        : "Let’s do a quick check-in"}
-                      <ArrowUpRight size={17} />
-                    </button>
-                    <span className="hero-foot">
-                      About 30 seconds. Just for you.
-                    </span>
-                  </div>
-                  <div className="mascot-wrap">
-                    <span className="speech">
-                      I care about your battery, too.
-                    </span>
-                    <Mascot />
-                    <span className="mascot-caption">
-                      BAYMAX IS HERE FOR YOU <span className="tiny-dot" />
-                    </span>
-                  </div>
-                </section>
-                <div className="section-heading">
-                  <h2>
-                    Your little wins today <span>ONE STEP AT A TIME</span>
-                  </h2>
-                  <button className="text-btn" onClick={() => go("Your plan")}>
-                    View your plan <ArrowUpRight size={15} />
-                  </button>
-                </div>
-                <div className="stats">
-                  <article className="stat">
-                    <div className="stat-top">
-                      <span className="stat-icon blue">
-                        <Droplets size={20} />
-                      </span>
-                      <span>HYDRATION</span>
-                      <button
-                        className="icon"
-                        aria-label="Add one glass of water"
-                        onClick={addWater}
-                      >
-                        <Plus size={17} />
-                      </button>
-                    </div>
-                    <h3>
-                      {water}
-                      <small> / {WATER_GOAL} glasses</small>
-                    </h3>
-                    <div className="water-bars">
-                      {Array.from({ length: WATER_GOAL }, (_, i) => (
-                        <i key={i} className={i < water ? "filled" : ""} />
-                      ))}
-                    </div>
-                    <p>A sip now is a little win.</p>
-                  </article>
-                  <article className="stat">
-                    <div className="stat-top">
-                      <span className="stat-icon orange">
-                        <Footprints size={20} />
-                      </span>
-                      <span>MOVEMENT</span>
-                    </div>
-                    <h3>
-                      {activeMinutes +
-                        (done.includes("Take a 10-minute walk") ? 10 : 0)}
-                      <small> / {MOVEMENT_GOAL} minutes</small>
-                    </h3>
-                    <div className="track">
-                      <i
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            ((activeMinutes +
-                              (done.includes("Take a 10-minute walk")
-                                ? 10
-                                : 0)) /
-                              MOVEMENT_GOAL) *
-                              100,
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                    <button
-                      className="text-btn"
-                      onClick={() => toggle("Take a 10-minute walk")}
-                    >
-                      {done.includes("Take a 10-minute walk")
-                        ? "Walk completed ✓"
-                        : "Log a little walk"}{" "}
-                      <ArrowUpRight size={14} />
-                    </button>
-                  </article>
-                  <article className="stat">
-                    <div className="stat-top">
-                      <span className="stat-icon purple">
-                        <Moon size={20} />
-                      </span>
-                      <span>YOUR ENERGY</span>
-                    </div>
-                    <h3>
-                      {energy || "Let’s check"}
-                      <small>{energy ? " today" : ""}</small>
-                    </h3>
-                    <p>You don’t have to be at 100%.</p>
-                    <button
-                      className="text-btn"
-                      onClick={() => setModal("checkin")}
-                    >
-                      {energy ? "Update check-in" : "How did you sleep?"}
-                      <ArrowUpRight size={14} />
-                    </button>
-                  </article>
-                </div>
-                {week.length > 0 && (
-                  <section className="panel week-panel">
-                    <div className="section-heading">
-                      <h2>
-                        Your last 7 days <span>ENERGY, WATER, MOVEMENT</span>
-                      </h2>
-                    </div>
-                    <div className="week">
-                      {week.map((d) => (
-                        <div className="week-day" key={d.date}>
-                          <span
-                            className={`energy-dot ${d.energy ?? "none"}`}
-                            title={d.energy ? `Energy: ${d.energy}` : "No check-in"}
-                          />
-                          <div className="week-bar" title="Water">
-                            <i
-                              style={{
-                                height: `${Math.min(100, (d.hydrationMl / 2000) * 100)}%`,
-                              }}
-                            />
-                          </div>
-                          <small>
-                            {new Date(`${d.date}T12:00:00`).toLocaleDateString(
-                              undefined,
-                              { weekday: "short" },
-                            )}
-                          </small>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="muted">
-                      Dots show energy (cloudy is low, bright is great). Bars
-                      show water against about 2 litres.
-                    </p>
-                  </section>
-                )}
-                <div className="lower-grid">
-                  <section className="panel">
-                    <div className="section-heading">
-                      <h2>A little nudge</h2>
-                      <span className="muted">2 FOR TODAY</span>
-                    </div>
-                    {["Take a 10-minute walk", "Make time for a real meal"].map(
-                      (s, i) => (
-                        <button
-                          className="task"
-                          key={s}
-                          onClick={() => toggle(s)}
-                        >
-                          <span
-                            className={`check ${done.includes(s) ? "checked" : ""}`}
-                          >
-                            {done.includes(s) && <Check size={13} />}
-                          </span>
-                          <span>
-                            <b className={done.includes(s) ? "struck" : ""}>
-                              {s}
-                            </b>
-                            <small>
-                              {i === 0
-                                ? "Step away from your screen. Your idea will wait."
-                                : "Your brain is doing a lot. Give it some fuel."}
-                            </small>
-                          </span>
-                          <span className="task-time">
-                            {i === 0 ? "ANYTIME" : "LUNCH"}
-                          </span>
-                        </button>
-                      ),
-                    )}
-                  </section>
-                  <section className="panel journey">
-                    <span className="stat-icon green">
-                      <Plane size={20} />
-                    </span>
-                    <h2>Going somewhere?</h2>
-                    <p>
-                      Take your care with you. Get your medication checklist and
-                      doctor brief ready.
-                    </p>
-                    <button
-                      className="text-btn"
-                      onClick={() => go("Travel care")}
-                    >
-                      Prepare for a trip <ArrowUpRight size={15} />
-                    </button>
-                  </section>
-                </div>
-              </>
-            )}
+            {page === "Today" && <Today workspace={workspace} onWater={addWater} onToggle={toggle} onCheckin={saveEnergy} onNavigate={go} />}
             <section
               hidden={page !== "Talk to Baymax"}
               className="panel chat-panel"
@@ -1769,10 +1529,10 @@ function App() {
             {page === "Your plan" && (
               <div className="two-col">
                 <section className="panel">
-                  <span className="eyebrow">YOUR NEXT BIG THING</span>
+                  <span className="eyebrow">WORKING TOWARD</span>
                   <h2>{goal}</h2>
                   <p className="muted">
-                    A preparation plan that puts your wellbeing on the calendar.
+                    Keep the next steps together. Adjust them as your plans change.
                   </p>
                   <label>
                     Event name
@@ -1790,11 +1550,11 @@ function App() {
                     />
                   </label>
                   <p className="notice">
-                    Your plan is here whenever you need a little nudge.
+                    Your plan updates here when you work on it with Baymax.
                   </p>
                 </section>
                 <section className="panel">
-                  <h2>Your daily preparation</h2>
+                  <h2>Next steps</h2>
                   {planItems.map(({ label: s, when }) => (
                     <button className="task" key={s} onClick={() => toggle(s)}>
                       <span
@@ -1821,7 +1581,7 @@ function App() {
                 <div className="two-col">
                   <section className="panel">
                     <span className="eyebrow">YOUR TRAVEL DETAILS</span>
-                    <h2>Let’s get you ready.</h2>
+                    <h2>Where are you heading?</h2>
                     <label>
                       Destination
                       <input
@@ -1859,7 +1619,7 @@ function App() {
                     aria-live="polite"
                   >
                     <span className="eyebrow">MEDICATION TRAVEL CHECKLIST</span>
-                    <h2>A few things to bring.</h2>
+                    <h2>Your travel checklist</h2>
                     {checklistLoading && (
                       <>
                         <div className="skeleton-line" />
@@ -1904,7 +1664,7 @@ function App() {
               <div className="two-col">
                 <section className="panel brief-panel">
                   <span className="eyebrow">REVIEW BEFORE YOU SHARE</span>
-                  <h2>A brief for your next doctor.</h2>
+                  <h2>The details worth bringing.</h2>
                   <label>
                     Editable health brief
                     <textarea
@@ -1989,7 +1749,7 @@ function App() {
                   >
                     <span>
                       <b>In-app nudges</b>
-                      <small>A little encouragement while you’re here.</small>
+                      <small>Let Baymax check in while you’re using the app.</small>
                     </span>
                     <span
                       role="switch"
@@ -2015,7 +1775,7 @@ function App() {
                 </section>
                 <section className="panel">
                   <ShieldCheck className="green-text" size={30} />
-                  <h2>Privacy comes first.</h2>
+                  <h2>What Baymax remembers</h2>
                   <label className="consent">
                     <input type="checkbox" checked={workspace.remember} disabled={persistence.busy} onChange={e => void persistence.changeMemory(e.target.checked)} />
                     Remember across visits
@@ -2041,22 +1801,22 @@ function App() {
               </div>
             )}
             <footer>
-              <span>
-                <ShieldCheck size={14} /> A little care, in your control.
-              </span>
-              <span>Built with care · Baymax</span>
+              <span>Baymax · Your personal health assistant</span>
+              <button className="footer-settings" onClick={() => go('Privacy & preferences')}>Privacy & settings <ArrowUpRight size={13} /></button>
             </footer>
           </div>
           <nav className="bottom-nav" aria-label="Main navigation">
-            {[nav[1], nav[0], nav[2], nav[3], nav[5]].map(([item, I]) => (
+            {[nav[0], nav[1], nav[2], nav[3], nav[5]].map(([item, I]) => (
               <button
                 key={item}
-                aria-label={item}
+                aria-label={NAV_LABELS[item]}
+                aria-current={page === item ? 'page' : undefined}
                 title={item}
                 className={page === item ? "active" : ""}
                 onClick={() => go(item)}
               >
                 <I size={22} />
+                <span>{NAV_LABELS[item]}</span>
               </button>
             ))}
           </nav>
@@ -2089,7 +1849,7 @@ function App() {
                 <>
                   <span className="eyebrow">YOUR DAILY CHECK-IN</span>
                   <h2>How’s your energy?</h2>
-                  <p>There’s no wrong answer. Start where you are.</p>
+                  <p>How you feel helps me understand the rest of your day.</p>
                   <div className="energy-options">
                     {["Low", "Okay", "Good", "Great"].map((s, i) => (
                       <button
@@ -2105,13 +1865,7 @@ function App() {
                   <button
                     className="primary"
                     disabled={!energy}
-                    onClick={() => {
-                      saveEnergy();
-                      setModal("");
-                      notify(
-                        "Check-in complete. Thank you for making a little time for yourself.",
-                      );
-                    }}
+                    onClick={async () => { if (await saveEnergy()) setModal(""); }}
                   >
                     Save my check-in <Check size={16} />
                   </button>
