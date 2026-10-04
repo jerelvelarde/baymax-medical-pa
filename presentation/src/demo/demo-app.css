@@ -30,3 +30,10 @@
 .component-app .d-care-side p,.component-app .d-travel-placeholder p{display:none}
 .component-app .d-welcome-copy>p{display:none}
 .component-app .d-welcome h2{font-size:60px;margin-bottom:30px}
+
+/* Cursor is anchored inside the control it activates, never guessed in canvas coordinates. */
+.d-action,.d-check,.d-metric-top b,.d-energy-options>div,.d-composer b,.d-app-nav>span,.rx-pharmacy,.rx-counter button,.rx-shopping .consent,.rx-checkout{position:relative}
+.demo-cue{position:absolute;right:12px;bottom:8px;width:34px;height:42px;pointer-events:none;z-index:30;filter:drop-shadow(0 3px 3px #283f3430)}
+.d-check .demo-cue,.d-metric-top b .demo-cue,.rx-counter button .demo-cue{right:-17px;bottom:-28px}
+.demo-cue i{position:absolute;left:-13px;top:-13px;width:30px;height:30px;border:3px solid #91ad71;border-radius:50%;background:#b7ce9955}
+.rx-shopping .consent .demo-cue{left:12px;right:auto;bottom:15px}
