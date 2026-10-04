@@ -68,6 +68,7 @@ import "./components/prescription-shopping.css";
 import { ActivityOnboarding, FitnessDashboard, FITNESS_CHANGED, fitnessRequest, type SavedPreferences } from "./components/Fitness";
 import type { FitnessOverview } from "./mastra/lib/fitness";
 import { AppleHealthConnection } from './components/AppleHealthConnection';
+import './ui-refresh.css';
 
 // Triggers the agent to read all of the user's health data and answer with a
 // week-in-review, which also renders the water, movement, sleep, energy and
@@ -988,6 +989,7 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
   }), [conversationId]);
   const attachmentAdapter = useMemo(() => createAttachmentAdapter(conversationId), [conversationId]);
   const [showShopping, setShowShopping] = useState(false);
+  const [hasMessages, setHasMessages] = useState(conversation.messages.length > 0);
   const runtime = useLocalRuntime(adapter, { adapters: { attachments: attachmentAdapter } });
   const initialConversation = useRef(conversation);
   const restored = useRef(false);
@@ -999,7 +1001,9 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
       runtime.thread.import({ ...repository, messages: repository.messages.map(item => ({ ...item, message: { ...item.message, createdAt: new Date(item.message.createdAt) } })) } as unknown as ExportedMessageRepository);
     }
     const unsubscribe = runtime.thread.subscribe(() => {
-      if (runtime.thread.getState().isRunning) return;
+      const thread = runtime.thread.getState();
+      setHasMessages(thread.messages.length > 0);
+      if (thread.isRunning) return;
       const serialized = JSON.stringify(runtime.thread.export());
       if (serialized !== lastExport.current) {
         lastExport.current = serialized;
@@ -1025,26 +1029,29 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
       <HealthTool />
       <WebSearchTool />
       <ThreadPrimitive.Root className="chat">
-        <ThreadPrimitive.Viewport className="transcript">
+        <ThreadPrimitive.Viewport className="transcript" autoScroll={hasMessages} scrollToBottomOnInitialize={hasMessages}>
           {!showShopping && <ThreadPrimitive.Empty>
             <div className="chat-welcome">
               <Mascot small />
-              <h2>Hello. I am Baymax.</h2>
-              <p>Your personal care companion. What’s on your mind?</p>
+              <span className="welcome-kicker"><Sparkles size={15} aria-hidden="true" /> ON YOUR SIDE. EVERY DAY.</span>
+              <h2>Your health has a sidekick.</h2>
+              <p>I’m Baymax. Bring your questions, your records, or just yourself.</p>
               <div className="suggestions">
                 {[
-                  WEEKLY_SUMMARY_PROMPT,
-                  "I need a diabetes medication refill while travelling",
-                  "Draft and email a brief to my doctor",
-                ].map((s) => (
+                  { prompt: WEEKLY_SUMMARY_PROMPT, title: "Connect the dots", detail: "A little perspective on your week.", Icon: Activity, tone: "mint" },
+                  { prompt: "I need a diabetes medication refill while travelling", title: "Medication, sorted", detail: "Help with a refill while you’re away.", Icon: Heart, tone: "peach" },
+                  { prompt: "Draft and email a brief to my doctor", title: "Walk in prepared", detail: "Your health story, ready for your doctor.", Icon: FileText, tone: "lilac" },
+                ].map(({ prompt, title, detail, Icon, tone }) => (
                   <ThreadPrimitive.Suggestion
-                    key={s}
-                    prompt={s}
+                    key={prompt}
+                    prompt={prompt}
                     method="replace"
                     autoSend
+                    className={`welcome-action ${tone}`}
                   >
-                    {s}
-                    <ArrowUpRight size={16} />
+                    <span className="welcome-action-icon"><Icon size={23} aria-hidden="true" /></span>
+                    <span className="welcome-action-copy"><strong>{title}</strong><small>{detail}</small></span>
+                    <ArrowUpRight className="welcome-action-arrow" size={18} aria-hidden="true" />
                   </ThreadPrimitive.Suggestion>
                 ))}
               </div>
@@ -1062,7 +1069,7 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
           </div>
         </ThreadPrimitive.If>
         <div className="quick-actions">
-          <button type="button" onClick={() => setShowShopping(value => !value)} aria-expanded={showShopping}>{showShopping ? "Hide shopping demo" : "Shopping demo"}</button>
+          <button type="button" onClick={() => setShowShopping(value => !value)} aria-expanded={showShopping}>{showShopping ? "Hide medication options" : "Medication options"}</button>
           {[
             { label: "Weekly summary", prompt: WEEKLY_SUMMARY_PROMPT },
             { label: "Fitness", prompt: "Open my fitness dashboard" },
@@ -1206,6 +1213,9 @@ const nav = [
   ["Travel care", Plane],
   ["Doctor brief", FileText],
 ] as const;
+const MOBILE_NAV_LABELS: Record<string, string> = {
+  'Talk to Baymax': 'Talk', 'Today': 'Today', 'Your plan': 'Plan', 'Physical fitness': 'Move', 'Travel care': 'Travel',
+};
 function App() {
   const [responding, setResponding] = useState(false);
   const [page, setPage] = useState("Talk to Baymax");
@@ -1373,6 +1383,8 @@ function App() {
     setPage(s);
     setMobile(false);
   };
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   if (persistence.loading || persistence.loadError) return (
     <div className="app-loading" role="status">
       <Mascot small />
@@ -1412,7 +1424,7 @@ function App() {
       }}
     >
       <div className={`app ${page === "Talk to Baymax" ? "chat-first" : ""}`}>
-        <aside className={mobile ? "sidebar open" : "sidebar"}>
+        <aside id="app-navigation" className={mobile ? "sidebar open" : "sidebar"}>
           <a
             className="brand"
             href="#"
@@ -1432,6 +1444,7 @@ function App() {
               <button
                 key={s}
                 className={page === s ? "nav active" : "nav"}
+                aria-current={page === s ? 'page' : undefined}
                 onClick={() => go(s)}
               >
                 <I size={19} />
@@ -1468,6 +1481,8 @@ function App() {
             <button
               className="mobile-menu icon"
               aria-label="Open navigation"
+              aria-expanded={mobile}
+              aria-controls="app-navigation"
               onClick={() => setMobile(!mobile)}
             >
               <Menu size={21} />
@@ -1499,7 +1514,7 @@ function App() {
                 <p className="eyebrow">A LITTLE CARE GOES A LONG WAY</p>
                 <h1>
                   {page === "Today"
-                    ? `Good morning, ${name}.`
+                    ? `${greeting}, ${name}.`
                     : page === "Talk to Baymax"
                       ? "Let’s talk."
                       : page === "Your plan"
@@ -1516,7 +1531,7 @@ function App() {
                 </h1>
                 <p>
                   {page === "Today"
-                    ? "You’re building something great. Let’s take care of you, too."
+                    ? "Your progress, a little perspective, and a nudge to look after yourself."
                     : page === "Talk to Baymax"
                       ? "No judgment. Just a companion in your corner."
                       : page === "Your plan"
@@ -1546,14 +1561,11 @@ function App() {
                       <Sparkles size={13} /> YOUR COMPANION, CHECKING IN
                     </span>
                     <h2>
-                      How are you feeling
-                      <br />
-                      on the inside?
+                      A quick check on the human.
                     </h2>
                     <p>
-                      You remembered your laptop charger.
-                      <br />
-                      Did you remember to recharge yourself?
+                      Your to-do list can wait 30 seconds.
+                      How are you feeling today?
                     </p>
                     <button
                       className="primary"
@@ -2052,11 +2064,13 @@ function App() {
               <button
                 key={item}
                 aria-label={item}
+                aria-current={page === item ? 'page' : undefined}
                 title={item}
                 className={page === item ? "active" : ""}
                 onClick={() => go(item)}
               >
                 <I size={22} />
+                <span>{MOBILE_NAV_LABELS[item]}</span>
               </button>
             ))}
           </nav>
