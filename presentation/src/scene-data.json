@@ -1,0 +1,134 @@
+[
+  {
+    "id": "welcome",
+    "title": "Meet your care companion",
+    "subtitle": "Start with a conversation. Keep your care close.",
+    "durationInFrames": 269,
+    "captions": [
+      {
+        "at": 0.0,
+        "text": "A personal care space, at your pace."
+      },
+      {
+        "at": 1.972,
+        "text": "A simple hello. A space that feels like yours."
+      },
+      {
+        "at": 3.6137142857142854,
+        "text": "Meet Baymax \u2014 ready for whatever is on your mind."
+      },
+      {
+        "at": 6.118857142857143,
+        "text": "Your everyday care, together in one place."
+      }
+    ]
+  },
+  {
+    "id": "care",
+    "title": "Make room for yourself",
+    "subtitle": "Turn a busy week into a few achievable steps.",
+    "durationInFrames": 476,
+    "captions": [
+      {
+        "at": 0.0,
+        "text": "Tell Baymax what you are preparing for."
+      },
+      {
+        "at": 2.684,
+        "text": "An actionable plan, right inside the conversation."
+      },
+      {
+        "at": 5.194857142857144,
+        "text": "Check off one small win. Then another."
+      },
+      {
+        "at": 7.902857142857143,
+        "text": "Take a moment to check in with your energy."
+      },
+      {
+        "at": 10.836571428571428,
+        "text": "Check-in saved. A little progress counts."
+      },
+      {
+        "at": 13.867999999999999,
+        "text": "Log hydration and see your little wins add up."
+      }
+    ]
+  },
+  {
+    "id": "travel",
+    "title": "Care, wherever you go",
+    "subtitle": "Prepare before you leave. Carry your context with you.",
+    "durationInFrames": 353,
+    "captions": [
+      {
+        "at": 0.0,
+        "text": "Start with your destination and departure date."
+      },
+      {
+        "at": 3.0274285714285716,
+        "text": "A medication travel checklist, ready to review."
+      },
+      {
+        "at": 6.720571428571428,
+        "text": "Pack the essentials and track what is ready."
+      },
+      {
+        "at": 9.218285714285713,
+        "text": "Continue directly to a brief for your next doctor."
+      }
+    ]
+  },
+  {
+    "id": "prescription",
+    "title": "A refill journey you can review",
+    "subtitle": "Choose. Adjust. Review. Confirm a simulated order.",
+    "durationInFrames": 401,
+    "captions": [
+      {
+        "at": 0.0,
+        "text": "Compare fictional pharmacy options in the demo cart."
+      },
+      {
+        "at": 2.480571428571429,
+        "text": "Choose an option and adjust the sample pack count."
+      },
+      {
+        "at": 5.934285714285715,
+        "text": "Review the pharmacy, quantity and sample total."
+      },
+      {
+        "at": 8.603428571428571,
+        "text": "Confirmation stays in your hands. This is a simulation."
+      },
+      {
+        "at": 10.242285714285714,
+        "text": "Demo order confirmed. No payment or purchase is made."
+      }
+    ]
+  },
+  {
+    "id": "brief",
+    "title": "Bring your story to your doctor",
+    "subtitle": "Edit your brief. Review the recipient. Choose when to share.",
+    "durationInFrames": 355,
+    "captions": [
+      {
+        "at": 0.0,
+        "text": "Review and edit the health context you want to share."
+      },
+      {
+        "at": 4.694285714285714,
+        "text": "Add a recipient and check the email subject."
+      },
+      {
+        "at": 6.4474285714285715,
+        "text": "Read the exact brief and recipient before sharing."
+      },
+      {
+        "at": 9.289714285714284,
+        "text": "Approve the draft handoff. You send from your email app."
+      }
+    ]
+  }
+]
