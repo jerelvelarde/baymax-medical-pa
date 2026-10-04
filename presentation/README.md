@@ -88,3 +88,25 @@ Generic product photos were generated for this presentation, then bundled as JPE
 A five-second privacy slide follows the medical-record upload, before reviewing extracted details. It says “Your privacy comes first” and “Working toward HIPAA readiness,” with an explicit ongoing compliance-review/deployment-qualification status. This follows the repository's documented readiness limits; it does not assert that Baymax or a deployment is HIPAA compliant. Onboarding review and completion retain their original interaction timing after the inserted beat.
 
 A five-second recap before the open-source closing card summarizes medical records, daily care/reminders, refills/supplies, travel preparation, doctor briefs, and the shared computer. Both slides are editable components in `src/demo/OverviewSlides.tsx`. The full composition is now 2,933 frames (97.77 seconds at 30 fps).
+
+## Manual looping slides
+
+Open `http://localhost:3100/Baymax-Slides`. In Studio's right sidebar, edit **slideNumber** (1–13) under Props. Turn on **Loop** in playback options and press Play: only the selected slide repeats. It does not advance to another slide. **holdSeconds** controls the pause on the final state (default 2); **showSlideNumber** toggles the small number badge. The full `Baymax-Launch` video is unchanged.
+
+| Number | Slide |
+| --- | --- |
+| 1 | Meet Baymax |
+| 2 | Choose your goals |
+| 3 | Add medical records |
+| 4 | Privacy first |
+| 5 | Review your records |
+| 6 | Today & your plan |
+| 7 | Gentle reminders |
+| 8 | Travel preparation |
+| 9 | Diabetes & marathon supplies |
+| 10 | Your shared computer |
+| 11 | Doctor-ready brief |
+| 12 | Key use cases |
+| 13 | Fully open source |
+
+`src/SlideDeck.tsx` reuses the existing source components and frame ranges. Changing the slide number recalculates the composition duration. The final-state hold freezes all scene animation, including the mascot, before the next loop. No exported video was rendered.
