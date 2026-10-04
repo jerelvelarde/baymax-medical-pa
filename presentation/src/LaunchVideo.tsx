@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import sceneData from './scene-data.json';
+import {ReminderDemo} from './demo/ReminderDemo';
 import {DemoApp} from './demo/DemoApp';
 import {MascotSprite} from './demo/MascotSprite';
 import './video.css';
@@ -18,7 +19,7 @@ const Brand=()=> <div className="brand"><span className="face"><i/><em/><i/></sp
 
 export const Opening:React.FC=()=>{
  const f=useCurrentFrame();const {fps}=useVideoConfig();const enter=spring({frame:f-4,fps,config:{damping:24}});
- return <AbsoluteFill className="canvas opening"><div className="intro-copy" style={{opacity:enter,transform:`translateY(${(1-enter)*24}px)`}}><Brand/><h1>A little care. Every day.</h1></div><div className="opening-sprite" style={{opacity:enter,transform:`translateY(${(1-enter)*55}px)`}}><MascotSprite size={570} greeting/></div></AbsoluteFill>;
+ return <AbsoluteFill className="canvas opening"><div className="intro-copy" style={{opacity:enter,transform:`translateY(${(1-enter)*24}px)`}}><Brand/><h1>An adorable Medical Personal Agent<br/>that cares for you.</h1></div><div className="opening-sprite" style={{opacity:enter,transform:`translateY(${(1-enter)*55}px)`}}><MascotSprite size={570} greeting/></div></AbsoluteFill>;
 };
 
 export const DemoChapter:React.FC<{scene:DemoScene;index:number}>=({scene,index})=>{
@@ -26,6 +27,7 @@ export const DemoChapter:React.FC<{scene:DemoScene;index:number}>=({scene,index}
  const current=Math.max(0,scene.captions.findLastIndex(c=>c.at*fps<=f));
  const captionAt=Math.round((scene.captions[current]?.at??0)*fps);
  const enter=interpolate(f,[0,12],[0,1],clamp);
+ if(scene.id==='reminders')return <AbsoluteFill className="canvas reminder-scene"><div className="reminder-copy"><div className="scene-kicker">BAYMAX · REMINDERS</div><h2>Small steps.<br/>Big Baymax<br/>energy.</h2><p>A little nudge.<br/>You choose when.</p></div><ReminderDemo/></AbsoluteFill>;
  const wide=(scene.id==='welcome'&&current===3)||(scene.id==='care'&&current===5)||scene.id==='brief'||(scene.id==='travel'&&current===3);
  const mode=wide?'overview':scene.id==='prescription'?'refill':scene.id==='care'&&current===0?'conversation':scene.id==='travel'?'travel':'personal';
  const title=scene.id==='care'?(current===0?'Make room\nfor you.':current===3?'How are\nyou, really?':current===4?'A little\nwin.':'Small steps.\nEvery day.'):scene.id==='prescription'?(current>=4?'All set.':current>=2?'One last\nlook.':'A refill.\nMade simple.'):scene.id==='travel'?'Care,\nwherever\nyou go.':scene.id==='welcome'?'Start with\nhello.':headlines[scene.id];
@@ -37,7 +39,7 @@ export const DemoChapter:React.FC<{scene:DemoScene;index:number}>=({scene,index}
 
 export const Closing:React.FC=()=>{
  const f=useCurrentFrame();const {fps}=useVideoConfig();const enter=spring({frame:f-3,fps,config:{damping:24}});
- return <AbsoluteFill className="canvas closing"><div className="closing-sprite" style={{opacity:enter,transform:`translateY(${(1-enter)*28}px)`}}><MascotSprite size={390}/></div><div className="outro-copy" style={{opacity:enter}}><h1>Your care. Your pace.</h1><Brand/></div></AbsoluteFill>;
+ return <AbsoluteFill className="canvas closing"><div className="closing-sprite" style={{opacity:enter,transform:`translateY(${(1-enter)*28}px)`}}><MascotSprite size={390}/></div><div className="outro-copy" style={{opacity:enter}}><h1>Your care. Your pace.</h1><Brand/><p className="positioning">Designed to be secure and compliant.</p></div></AbsoluteFill>;
 };
 export const LaunchVideo:React.FC=()=>{
  let start=INTRO;

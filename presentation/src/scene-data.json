@@ -56,6 +56,18 @@
     ]
   },
   {
+    "id": "reminders",
+    "title": "A little nudge.",
+    "subtitle": "Medical reminders, on your terms.",
+    "durationInFrames": 240,
+    "captions": [
+      {
+        "at": 0,
+        "text": "A little nudge."
+      }
+    ]
+  },
+  {
     "id": "travel",
     "title": "Travel ready.",
     "subtitle": "Prepare before you leave. Carry your context with you.",

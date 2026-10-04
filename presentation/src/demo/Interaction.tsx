@@ -6,7 +6,7 @@ export const events:Record<string,Record<string,number>>={
  'welcome:1':{'Let’s take care of you':32},
  'welcome:2':{'Today':50},
  'care:0':{'Send':32},
- 'care:2':{'Take a 10-minute walk':12,'Make time for a real meal':32,'Check in for today':56},
+ 'care:2':{'Write down my symptoms':12,'Review my medication list':32,'Check in for today':56},
  'care:3':{'Good':20,'Save my check-in':58},
  'care:4':{'Today':62},
  'care:5':{'Water':12},
