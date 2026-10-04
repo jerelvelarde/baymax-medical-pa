@@ -1,133 +1,133 @@
 [
   {
     "id": "welcome",
-    "title": "Meet your care companion",
+    "title": "Say hello.",
     "subtitle": "Start with a conversation. Keep your care close.",
-    "durationInFrames": 269,
+    "durationInFrames": 215,
     "captions": [
       {
         "at": 0.0,
-        "text": "A personal care space, at your pace."
+        "text": "Your space."
       },
       {
-        "at": 1.972,
-        "text": "A simple hello. A space that feels like yours."
+        "at": 1.578,
+        "text": "Hello, Alex."
       },
       {
-        "at": 3.6137142857142854,
-        "text": "Meet Baymax \u2014 ready for whatever is on your mind."
+        "at": 2.891,
+        "text": "Just ask."
       },
       {
-        "at": 6.118857142857143,
-        "text": "Your everyday care, together in one place."
+        "at": 4.895,
+        "text": "Care, together."
       }
     ]
   },
   {
     "id": "care",
-    "title": "Make room for yourself",
+    "title": "Feel better.",
     "subtitle": "Turn a busy week into a few achievable steps.",
-    "durationInFrames": 476,
+    "durationInFrames": 381,
     "captions": [
       {
         "at": 0.0,
-        "text": "Tell Baymax what you are preparing for."
+        "text": "Make a plan."
       },
       {
-        "at": 2.684,
-        "text": "An actionable plan, right inside the conversation."
+        "at": 2.147,
+        "text": "Small steps."
       },
       {
-        "at": 5.194857142857144,
-        "text": "Check off one small win. Then another."
+        "at": 4.156,
+        "text": "Little wins."
       },
       {
-        "at": 7.902857142857143,
-        "text": "Take a moment to check in with your energy."
+        "at": 6.322,
+        "text": "How are you?"
       },
       {
-        "at": 10.836571428571428,
-        "text": "Check-in saved. A little progress counts."
+        "at": 8.669,
+        "text": "Check-in saved."
       },
       {
-        "at": 13.867999999999999,
-        "text": "Log hydration and see your little wins add up."
+        "at": 11.094,
+        "text": "See your progress."
       }
     ]
   },
   {
     "id": "travel",
-    "title": "Care, wherever you go",
+    "title": "Travel ready.",
     "subtitle": "Prepare before you leave. Carry your context with you.",
-    "durationInFrames": 353,
+    "durationInFrames": 282,
     "captions": [
       {
         "at": 0.0,
-        "text": "Start with your destination and departure date."
+        "text": "Where next?"
       },
       {
-        "at": 3.0274285714285716,
-        "text": "A medication travel checklist, ready to review."
+        "at": 2.422,
+        "text": "Get ready."
       },
       {
-        "at": 6.720571428571428,
-        "text": "Pack the essentials and track what is ready."
+        "at": 5.376,
+        "text": "Packed."
       },
       {
-        "at": 9.218285714285713,
-        "text": "Continue directly to a brief for your next doctor."
+        "at": 7.375,
+        "text": "Bring your context."
       }
     ]
   },
   {
     "id": "prescription",
-    "title": "A refill journey you can review",
+    "title": "Refills, simplified.",
     "subtitle": "Choose. Adjust. Review. Confirm a simulated order.",
-    "durationInFrames": 401,
+    "durationInFrames": 321,
     "captions": [
       {
         "at": 0.0,
-        "text": "Compare fictional pharmacy options in the demo cart."
+        "text": "Explore options."
       },
       {
-        "at": 2.480571428571429,
-        "text": "Choose an option and adjust the sample pack count."
+        "at": 1.984,
+        "text": "Make your choice."
       },
       {
-        "at": 5.934285714285715,
-        "text": "Review the pharmacy, quantity and sample total."
+        "at": 4.747,
+        "text": "Review."
       },
       {
-        "at": 8.603428571428571,
-        "text": "Confirmation stays in your hands. This is a simulation."
+        "at": 6.883,
+        "text": "Confirm demo."
       },
       {
-        "at": 10.242285714285714,
-        "text": "Demo order confirmed. No payment or purchase is made."
+        "at": 8.194,
+        "text": "All set."
       }
     ]
   },
   {
     "id": "brief",
-    "title": "Bring your story to your doctor",
+    "title": "Share your story.",
     "subtitle": "Edit your brief. Review the recipient. Choose when to share.",
-    "durationInFrames": 355,
+    "durationInFrames": 284,
     "captions": [
       {
         "at": 0.0,
-        "text": "Review and edit the health context you want to share."
+        "text": "Your health brief."
       },
       {
-        "at": 4.694285714285714,
-        "text": "Add a recipient and check the email subject."
+        "at": 3.755,
+        "text": "Choose your doctor."
       },
       {
-        "at": 6.4474285714285715,
-        "text": "Read the exact brief and recipient before sharing."
+        "at": 5.158,
+        "text": "Review together."
       },
       {
-        "at": 9.289714285714284,
-        "text": "Approve the draft handoff. You send from your email app."
+        "at": 7.432,
+        "text": "Ready to share."
       }
     ]
   }

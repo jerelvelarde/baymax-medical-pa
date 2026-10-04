@@ -1,6 +1,6 @@
 # Baymax launch presentation
 
-An editable, approximately 70-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
+An editable, approximately 56-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
 
 ## Open Remotion Studio
 
@@ -30,3 +30,5 @@ The scenes use local example data and do not call the app backend, place orders,
 ```sh
 npm run typecheck
 ```
+
+Visual direction: minimal wording, clean component demos, sage Baymax branding, and animated mascot sprites. Reference supplied by the user: https://x.com/ataiiam/status/2102400431519592581/video/1 (video playback unavailable during editing).

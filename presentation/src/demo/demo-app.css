@@ -21,3 +21,12 @@
 .component-app .rx-shopping .consent{grid-column:2;grid-row:4;display:flex;gap:14px;align-items:center;font-size:22px;line-height:1.4}.component-app .rx-shopping .consent input{flex-shrink:0;height:25px;width:25px;accent-color:#6c8c50}.component-app .rx-shopping .primary{grid-column:2;grid-row:5;min-height:58px;padding:14px 18px;background:#3d543c;color:#fff;border-radius:10px;display:flex;align-items:center;gap:14px;font-size:26px;font-weight:500}.component-app .rx-shopping .fine{grid-column:2;grid-row:6;font-size:18px;line-height:1.35;margin:0;color:#6c7d61}
 .component-app .rx-review{grid-column:1;grid-row:3/7;font-size:24px;padding:20px;border-radius:14px}.component-app .rx-review .eyebrow{font-size:19px}.component-app .rx-review p{font-size:25px;line-height:1.4;margin:12px 0}.component-app .rx-review .text-btn{font-size:22px;color:#668448;border:1px solid #d8e3ce;border-radius:8px;padding:10px 16px}
 .component-app .rx-complete{grid-column:1/-1;grid-row:2/7;padding:10px 90px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}.component-app .rx-complete .stat-icon{height:70px;width:70px;border-radius:50%;margin:0 auto 14px}.component-app .rx-complete h3{font-size:46px;margin:12px 0}.component-app .rx-complete p{font-size:29px;max-width:1200px;margin:12px 0}.component-app .rx-complete .outline{font-size:24px;border:1px solid #d3dfc8;border-radius:10px;padding:13px 22px;background:#fff;color:#526e3e;margin-top:16px}
+
+/* Presentation focus: product actions and outcomes. */
+.component-app .d-eyebrow,.component-app .d-agent span,.component-app .d-notice{display:none}
+.component-app .d-app-nav{font-size:22px}
+.component-app .d-field>span{font-size:24px}
+.component-app .d-input,.component-app .d-task{font-size:27px}
+.component-app .d-care-side p,.component-app .d-travel-placeholder p{display:none}
+.component-app .d-welcome-copy>p{display:none}
+.component-app .d-welcome h2{font-size:60px;margin-bottom:30px}
