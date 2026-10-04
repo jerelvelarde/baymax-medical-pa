@@ -41,6 +41,7 @@ import {
   Mail,
 } from "lucide-react";
 import "./style.css";
+import Mascot, { MascotActivity } from "./Mascot";
 
 function ModalShell({
   children,
@@ -67,51 +68,6 @@ function ModalShell({
     >
       {children}
     </dialog>
-  );
-}
-function Mascot({ small = false }: { small?: boolean }) {
-  const id = React.useId().replace(/:/g, "");
-  const shell = `url(#${id}-shell)`;
-  return (
-    <svg className={`mascot ${small ? "small" : ""}`} viewBox="0 0 300 330"
-      role="img" aria-label="Baymax, your care companion">
-      <defs>
-        <radialGradient id={`${id}-shell`} cx="36%" cy="24%" r="85%">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset=".72" stopColor="#f8f9f6" />
-          <stop offset="1" stopColor="#e3e7df" />
-        </radialGradient>
-      </defs>
-      <ellipse className="bay-shadow" cx="150" cy="304" rx="59" ry="7" fill="#354532" opacity=".08" />
-      <g className="bay-pose">
-        <g className="bay-intent">
-          <g className="bay-breathe">
-            <g className="bay-greeting">
-              <path d="M107 264 C105 278 107 298 122 299 C137 300 142 289 141 271Z" fill={shell} />
-              <path d="M159 271 C158 289 163 300 178 299 C193 298 195 278 193 264Z" fill={shell} />
-              <path d="M104 147 C85 147 65 175 59 204 C54 224 59 238 70 238 C83 238 85 222 91 205 L113 169Z" fill={shell} />
-              <g className="bay-wave">
-                <path d="M196 147 C215 147 235 175 241 204 C246 224 241 238 230 238 C217 238 215 222 209 205 L187 169Z" fill={shell} />
-              </g>
-              <path d="M150 125 C119 125 97 142 89 174 C81 200 73 223 80 249 C87 278 113 288 150 288 C187 288 213 278 220 249 C227 223 219 200 211 174 C203 142 181 125 150 125Z" fill={shell} />
-              <g className="bay-head">
-                <ellipse cx="150" cy="104" rx="61" ry="38" fill={shell} />
-                <path d="M124 105h52" stroke="#28302c" strokeWidth="2" />
-                <g className="bay-eyes" fill="#28302c">
-                  <circle cx="124" cy="105" r="5.5" />
-                  <circle cx="176" cy="105" r="5.5" />
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-      <g className="bay-orbit" fill="#718267" aria-hidden="true">
-        <circle className="bay-dot" cx="135" cy="319" r="3" />
-        <circle className="bay-dot" cx="150" cy="319" r="3" />
-        <circle className="bay-dot" cx="165" cy="319" r="3" />
-      </g>
-    </svg>
   );
 }
 // Mastra-backed adapter: streams text from the Baymax agent (proxied to the
@@ -543,6 +499,13 @@ function AssistantMessage() {
 }
 function Chat() {
   const runtime = useLocalRuntime(adapter);
+  const { setResponding } = useContext(MascotActivity);
+  useEffect(() => {
+    const sync = () => setResponding(runtime.thread.getState().isRunning);
+    sync();
+    const unsubscribe = runtime.thread.subscribe(sync);
+    return () => { unsubscribe(); setResponding(false); };
+  }, [runtime, setResponding]);
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <CareTool />
@@ -636,6 +599,7 @@ const nav = [
   ["Doctor brief", FileText],
 ] as const;
 function App() {
+  const [responding, setResponding] = useState(false);
   const [page, setPage] = useState("Talk to Baymax");
   const [modal, setModal] = useState("");
   const [name, setName] = useState("Alex");
@@ -677,6 +641,7 @@ function App() {
     setMobile(false);
   };
   return (
+    <MascotActivity.Provider value={{ responding, setResponding }}>
     <CareContext.Provider
       value={{
         done,
@@ -1451,6 +1416,7 @@ function App() {
         )}
       </div>
     </CareContext.Provider>
+    </MascotActivity.Provider>
   );
 }
 createRoot(document.getElementById("root")!).render(
