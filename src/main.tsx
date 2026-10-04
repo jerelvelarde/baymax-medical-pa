@@ -1,3 +1,5 @@
+import { MedicalRecordPage } from "./components/MedicalRecordPage";
+import { MedicalChangeTool, MedicalProposalTool } from "./components/MedicalRecordTools";
 import { Computer } from "./components/Computer";
 import { ComputerActionCard, type ComputerActionArgs } from "./components/ComputerActionCard";
 import React, {
@@ -1066,6 +1068,8 @@ function Chat({ conversationId, conversation, onConversation, onToolResult, work
     <AssistantRuntimeProvider runtime={runtime}>
       <CareTool />
       <HealthTool />
+      <MedicalChangeTool />
+      <MedicalProposalTool />
       <WebSearchTool />
       <ThreadPrimitive.Root className="chat">
         <ThreadPrimitive.Viewport className="transcript" autoScroll={hasMessages} scrollToBottomOnInitialize={hasMessages}>
@@ -1232,14 +1236,20 @@ const nav = [
   ["Running", Activity],
   ["Travel care", Plane],
   ["Doctor brief", FileText],
+  ["Medical record", ShieldCheck],
   ["Computer", Monitor],
 ] as const;
 const NAV_LABELS: Record<string, string> = {
-  'Talk to Baymax': 'Talk', 'Today': 'Today', 'Your plan': 'Plan', 'Physical fitness': 'Activity', 'Running': 'Running', 'Travel care': 'Travel', 'Doctor brief': 'Doctor brief', 'Computer': 'Computer',
+  'Talk to Baymax': 'Talk', 'Today': 'Today', 'Your plan': 'Plan', 'Physical fitness': 'Activity', 'Running': 'Running', 'Travel care': 'Travel', 'Doctor brief': 'Doctor brief', 'Computer': 'Computer', 'Medical record': 'Medical record',
 };
 function App() {
   const [responding, setResponding] = useState(false);
   const [page, setPage] = useState("Today");
+  useEffect(() => {
+    const open = () => setPage("Medical record");
+    window.addEventListener("baymax:open-medical-record", open);
+    return () => window.removeEventListener("baymax:open-medical-record", open);
+  }, []);
   const [modal, setModal] = useState("");
   const [preferencesLoading, setPreferencesLoading] = useState(true);
   const [fitnessPreferences, setFitnessPreferences] = useState<SavedPreferences>();
@@ -1523,7 +1533,7 @@ function App() {
             </button>
             <div className="header-location"><span className="header-brand">baymax.</span><span className="header-section">{page === 'Talk to Baymax' ? 'Conversation' : NAV_LABELS[page] ?? page}</span></div>
             <div className="persistence-status" role="status">
-              <ShieldCheck size={14} /><span>{persistence.status}</span>
+              <ShieldCheck size={14} /><span>{page === "Medical record" ? "Medical record · stored on server" : persistence.status}</span>
               {persistence.error && <><span role="alert">{persistence.error}</span><button className="text-btn" disabled={persistence.busy} onClick={async () => { if (await persistence.retry()) { setModal(""); setPage("Talk to Baymax"); } }}>Try again</button></>}
             </div>
             <button
@@ -1551,6 +1561,8 @@ function App() {
                           ? "Your running log."
                         : page === "Travel care"
                           ? "Ready for your trip."
+                          : page === "Medical record"
+                            ? "Your health. In one place."
                           : page === "Doctor brief"
                             ? "For your doctor."
                             : page === "Computer" ? "A workspace for Baymax." : "Privacy & preferences."}
@@ -1568,6 +1580,8 @@ function App() {
                           ? "Distance, time, and the runs that add up."
                         : page === "Travel care"
                           ? "Medication, documents, and a plan for care while you’re away."
+                          : page === "Medical record"
+                            ? "A living record of your history, your documents, and what you tell Baymax."
                           : page === "Doctor brief"
                             ? "Your records and questions, ready for the appointment."
                             : page === "Computer" ? "Follow the work, take control, and keep your files close." : "Choose what Baymax remembers and how often it checks in."}
@@ -1630,6 +1644,7 @@ function App() {
                 </section>
               </div>
             )}
+            {page === "Medical record" && <MedicalRecordPage onChat={() => go("Talk to Baymax")} />}
             {page === "Physical fitness" && <FitnessDashboard />}
             {page === "Running" && <RunningSection />}
             {page === "Travel care" && (

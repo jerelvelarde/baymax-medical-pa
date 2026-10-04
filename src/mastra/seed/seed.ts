@@ -147,6 +147,15 @@ export async function seedDemo(q: Query, options: SeedOptions = {}) {
 export async function resetDemo(q: Query, options: SeedOptions = {}) {
   const userId = options.userId ?? DEMO_USER_ID;
   await q(
+    `WITH a AS (DELETE FROM medical_record_entries WHERE user_id = $1),
+          b AS (DELETE FROM medical_record_documents WHERE user_id = $1),
+          c AS (DELETE FROM medical_record_proposals WHERE user_id = $1),
+          d AS (DELETE FROM medical_record_events WHERE user_id = $1),
+          e AS (DELETE FROM medical_record_operations WHERE user_id = $1)
+     DELETE FROM medical_record_state WHERE user_id = $1`,
+    [userId],
+  );
+  await q(
     `WITH a AS (DELETE FROM conversations WHERE user_id = $1),
           b AS (DELETE FROM records WHERE user_id = $1 AND source = 'upload'),
           c AS (DELETE FROM checkins WHERE user_id = $1),

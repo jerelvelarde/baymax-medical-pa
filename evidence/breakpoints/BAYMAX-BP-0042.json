@@ -1,0 +1,102 @@
+{
+  "base_head": "8a45326c490d2c7122ef871709bcf6bf749c012f",
+  "branch": "codex/medical-record",
+  "breakpoint_id": "BAYMAX-BP-0042",
+  "claim_boundary": "Merkle root commits to exact declared artifact descriptors and ordering; it does not establish correctness, authorization, medical validity, or regulatory compliance.",
+  "merkle": {
+    "artifacts": [
+      {
+        "bytes": 1053,
+        "path": "evidence/receipts/medical-record/validation.json",
+        "sha256": "4c4b511351b26b2c107bf3d6985a34bed5becf37dd39a79b637923ba16294b98"
+      },
+      {
+        "bytes": 7675,
+        "path": "src/shared/medical-record.ts",
+        "sha256": "a206754e97e42a43f362b88436fcf94355f79e7b59089ffca58378748fc2359b"
+      },
+      {
+        "bytes": 13424,
+        "path": "migrations/007_medical_record.sql",
+        "sha256": "67b15126b09a79327106137f678ea027cf80a5d668a89de10793f359014be2a4"
+      },
+      {
+        "bytes": 3088,
+        "path": "src/mastra/medical-record/store.ts",
+        "sha256": "b8c29eb3e9591aaad13dd9651aaff47fa553d4e11e5e5beb8063c08b9008613c"
+      },
+      {
+        "bytes": 3766,
+        "path": "src/mastra/medical-record/handler.ts",
+        "sha256": "751b81be73c8f0b7e5ff70b2228a82fb58af819429f9e3b745c6472854668377"
+      },
+      {
+        "bytes": 1750,
+        "path": "src/mastra/medical-record/user-statement.ts",
+        "sha256": "99614d88291858bd089d739065243f74c531a34433e6de5236a9d4b6ea4b03eb"
+      },
+      {
+        "bytes": 1571,
+        "path": "src/mastra/medical-record/tracing.ts",
+        "sha256": "ad537e2b1ce1b0c938d2207856e892fc6f3907a5b5c4562353c2ddb8b12c5148"
+      },
+      {
+        "bytes": 4537,
+        "path": "src/mastra/tools/medical-record-tool.ts",
+        "sha256": "84a29c3c0c67be0a354d1a51f569d6d7e0302a6d813dbef4389c8f1642e31dc6"
+      },
+      {
+        "bytes": 11427,
+        "path": "src/components/MedicalRecordPage.tsx",
+        "sha256": "d83b64db8da01b6f69ab7f86372c7e13c540bb93deabbed89e6595016a99780c"
+      },
+      {
+        "bytes": 11603,
+        "path": "tests/medical-record-store.test.ts",
+        "sha256": "a67e9a8a075fc4bae224df82f7ffdaf822fc8ff3bfaadc0fa246c871b11018ae"
+      },
+      {
+        "bytes": 7394,
+        "path": "tests/medical-record-integration.test.ts",
+        "sha256": "a6a54d74b6e7fb00c131bf67d0b8ce3d71ea6c29266c1168654e36879083e2ab"
+      },
+      {
+        "bytes": 5987,
+        "path": "tests/medical-record.spec.ts",
+        "sha256": "901153b0764f4b1caab2144c277139a3b541c9a1125ccfe826080061f103ba9d"
+      },
+      {
+        "bytes": 5948,
+        "path": "docs/medical-record-integration.md",
+        "sha256": "eb62c3ce3da2b3a2eda0d997b0c23b3400ce12f36775834a20e434659e9a8760"
+      }
+    ],
+    "construction": "baymax-ordered-merkle-v1: leaf=sha256(0x00||sha256(canonical_leaf_utf8)); node=sha256(0x01||raw(left)||raw(right)); odd=promote; order=argv",
+    "leaf_count": 13,
+    "leaf_hashes": [
+      "a56382e98c1df3b668665ddef491d10c10286141e09ecf39de2c1ed92e7d2c2e",
+      "9cd2889631a33f45ccbb2dee5c2eef9e722893af956ce703f9a08c648259f7a0",
+      "ccb0e5a3d9774271b9b61b78b8c9e846383e3e115514ef328e93ef75e4b4622a",
+      "878bda572f881b43bdd0b411982eea63280ea7660e03b603ae23dd46ad68c9ea",
+      "1f666a6e77c2987bb970d4f6b4db156820bc9306d0d3d13508739ba9198b1094",
+      "f74f9fd1d21dfeac039d8fcb41070b8d1273f1ee72d959754300bd5aa6b125ec",
+      "6725085f992f68f1a8ce79a3cd096da2fbcbe16fb81266971a97765df3c226ba",
+      "ca142fe1377f0ae9b8e3eb127af0fec9d645aff33b55d7bcef8c16f970590c30",
+      "0f4178e575d585396a42898084a3b2e6386063b32c7cbd5fe2a06b3ea93abe7e",
+      "80a7021bb9d7730b0fab7ed6a7f342978f8b983990883f7958224bd4729ad847",
+      "b32fc77bcc17b57a0190467859c138ed418272ea8cc84be3e96a3bbfb0232a75",
+      "35a49c66653eff3ecc73a844fe536b19c8ebade30c320bc469b0a9450892341b",
+      "e29da027d93e821eca08cd85d7665e275d3693491f1d30c7086e83e4fd9e1935"
+    ],
+    "leaf_ordering": "artifact_argv_order",
+    "merkle_root": "68a00a55c8fc75bde645c27148bafbd7fcd34bc2b2034eef533a5d013c8d342c"
+  },
+  "mmr_state": "NOT_COMPUTED",
+  "note": "Synthetic medical record with reviewed source documents; no real-PHI admission. Existing historical artifact verification mismatches preserved.",
+  "parent": "BAYMAX-BP-0041",
+  "repository": "biobitworks/baymax-medical-pa",
+  "schema": "baymax.breakpoint.v1",
+  "stage": "LONGITUDINAL_MEDICAL_RECORD",
+  "state": "IMPLEMENTED_TESTED",
+  "timestamp_utc": "2026-10-04T22:39:41.970587+00:00"
+}

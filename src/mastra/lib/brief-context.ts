@@ -1,4 +1,6 @@
-import { dbOf, userIdOf } from "./demo-user";
+import { medicalProfile } from "../medical-record/profile";
+import { getMedicalRecord } from "../medical-record/store";
+import { medicalContext } from "../medical-record/context";
 import { searchExa } from "./exa-search";
 import { appleHealthStore, importedHealth } from "./health-reader";
 import { summarizeAppleHealth } from "./apple-health";
@@ -157,23 +159,8 @@ export interface FlaggedLab {
   date: string;
 }
 
-export async function loadProfile(): Promise<BriefProfile | null> {
-  const q = dbOf();
-  const userId = userIdOf();
-  const [[user], conditions, medications, allergies] = await Promise.all([
-    q("SELECT name, CASE WHEN date_of_birth IS NULL THEN NULL ELSE date_part('year', age(date_of_birth))::int END AS age FROM users WHERE id = $1", [userId]),
-    q("SELECT name, status FROM user_conditions WHERE user_id = $1 ORDER BY name", [userId]),
-    q("SELECT name FROM user_medications WHERE user_id = $1 ORDER BY name", [userId]),
-    q("SELECT name FROM user_allergies WHERE user_id = $1 ORDER BY name", [userId]),
-  ]);
-  if (!user) return null;
-  return {
-    name: String(user.name),
-    ...(user.age == null ? {} : { age: Number(user.age) }),
-    conditions: conditions.map((c) => (c.status && c.status !== "active" ? `${c.name} (${c.status})` : String(c.name))),
-    medications: medications.map((m) => String(m.name)),
-    allergies: allergies.map((a) => String(a.name)),
-  };
+export async function loadProfile(context?: ToolContext): Promise<BriefProfile | null> {
+  return medicalProfile(medicalContext(context), !(await importedHealth(context)).connected);
 }
 
 export async function loadWellness(context?: ToolContext, days = 14): Promise<Wellness> {
@@ -200,23 +187,17 @@ export async function loadWellness(context?: ToolContext, days = 14): Promise<We
   };
 }
 
-export async function loadFlaggedLabs(): Promise<FlaggedLab[]> {
-  try {
-    const rows = await dbOf()(
-      `SELECT DISTINCT ON (biomarker) biomarker, value, unit, flag, to_char(measured_on, 'YYYY-MM-DD') AS date
-       FROM lab_results
-       WHERE user_id = $1 AND flag IS NOT NULL AND lower(flag) NOT IN ('', 'normal', 'in_range', 'ok', 'n')
-       ORDER BY biomarker, measured_on DESC`,
-      [userIdOf()],
-    );
-    return rows
-      .map((r) => ({ biomarker: String(r.biomarker), value: Number(r.value), unit: String(r.unit ?? ""), flag: String(r.flag), date: String(r.date) }))
-      .sort((a, b) => b.date.localeCompare(a.date))
-      .slice(0, 5);
-  } catch (err) {
-    console.warn("flagged labs unavailable", err);
-    return [];
+export async function loadFlaggedLabs(context?: ToolContext): Promise<FlaggedLab[]> {
+  const includeDemo = !(await importedHealth(context)).connected;
+  const record = await getMedicalRecord(medicalContext(context));
+  const latest = new Map<string, FlaggedLab>();
+  for (const entry of record.entries) {
+    const c = entry.content;
+    if (entry.status !== 'current' || c.kind !== 'observation' || typeof c.data.value !== 'number' || !c.effectiveDate || (!includeDemo && entry.provenance.type === 'legacy_demo')) continue;
+    const previous = latest.get(c.label);
+    if (!previous || previous.date < c.effectiveDate) latest.set(c.label, { biomarker: c.label, value: c.data.value, unit: c.data.unit ?? '', flag: c.data.flag ?? 'normal', date: c.effectiveDate });
   }
+  return [...latest.values()].filter(lab => !['', 'normal', 'in_range', 'ok', 'n'].includes(lab.flag.toLowerCase())).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
 }
 
 export interface BriefContext {
@@ -238,9 +219,9 @@ export async function buildBriefContext(
   const destination = input.destination?.trim() || undefined;
   const settle = <T>(p: Promise<T>, fallback: T) => p.catch((err) => { console.warn("brief context", err); return fallback; });
   const [profile, wellness, labs, advisories, smartraveller, cityDetails] = await Promise.all([
-    settle(loadProfile(), null),
+    settle(loadProfile(context), null),
     settle(loadWellness(context), null),
-    loadFlaggedLabs(),
+    settle(loadFlaggedLabs(context), []),
     searchTravelAdvisories(destination, signal),
     searchSmartraveller(destination, signal),
     destination ? searchCityDetails(destination, signal) : Promise.resolve(null),

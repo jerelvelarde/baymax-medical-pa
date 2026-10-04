@@ -1,0 +1,17 @@
+{
+  "schema": "baymax.medical-record-validation.v1",
+  "data_boundary": "SYNTHETIC_ONLY; no live database migrations or real medical data used",
+  "unit_tests": {"passed": 127, "failed": 0},
+  "browser_tests": {"passed": 21, "failed": 0, "post_copy_change_medical_tests": 3},
+  "python_regression_tests": {"run": 37, "skipped": 5, "result": "OK"},
+  "frontend_build": "PASS",
+  "agent_build": "PASS",
+  "spec_review": "APPROVED",
+  "code_review": "NO_ACTIONABLE_FINDINGS",
+  "secret_scan": "PASS scoped known-credential patterns on medical change files; gitleaks unavailable",
+  "diff_check": "PASS",
+  "historical_breakpoints": "Existing tracked artifact mismatches reproduced on origin/main; historical receipts left unchanged. New medical breakpoint independently recomputed.",
+  "live_model_and_database": "NOT_TESTED; local PGlite route/store tests only",
+  "computer_bridge": "IMPLEMENTED ingestion contract; computer/files adapter calls it separately",
+  "identity": "Existing fixed demo identity; not qualified for real PHI or multiple users"
+}
