@@ -70,69 +70,61 @@ function ModalShell({
   );
 }
 function Mascot({ small = false }: { small?: boolean }) {
+  // Each instance needs its own paint server, including those inside dialogs.
+  const id = React.useId().replace(/:/g, "");
+  const shell = `url(#${id}-shell)`;
   return (
-    <svg
-      className={`mascot ${small ? "small" : ""}`}
-      viewBox="0 0 300 330"
-      role="img"
-      aria-label="Baymax gently waving"
-    >
+    <svg className={`mascot ${small ? "small" : ""}`} viewBox="0 0 300 330"
+      role="img" aria-label="Baymax, your care companion">
       <defs>
-        <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
-          <stop stopColor="#fff" />
-          <stop offset="1" stopColor="#e1e5e0" />
-        </linearGradient>
+        <radialGradient id={`${id}-shell`} cx="35%" cy="22%" r="82%">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset=".64" stopColor="#f8faf5" />
+          <stop offset="1" stopColor="#dce5d8" />
+        </radialGradient>
       </defs>
-      <ellipse cx="150" cy="308" rx="83" ry="12" fill="#294633" opacity=".09" />
-      <g className="bay-body">
-        <ellipse cx="124" cy="278" rx="28" ry="33" fill="url(#body)" />
-        <ellipse cx="179" cy="278" rx="28" ry="33" fill="url(#body)" />
-        <ellipse
-          cx="151"
-          cy="207"
-          rx="82"
-          ry="92"
-          fill="url(#body)"
-          stroke="#dbe0d9"
-        />
-        <ellipse
-          cx="69"
-          cy="210"
-          rx="22"
-          ry="64"
-          transform="rotate(15 69 210)"
-          fill="url(#body)"
-        />
-        <g className="wave">
-          <ellipse
-            cx="240"
-            cy="157"
-            rx="22"
-            ry="64"
-            transform="rotate(-35 240 157)"
-            fill="url(#body)"
-          />
-          <ellipse cx="263" cy="109" rx="23" ry="27" fill="url(#body)" />
+      <ellipse className="bay-shadow" cx="150" cy="310" rx="65" ry="9" fill="#446144" opacity=".10" />
+      <g className="bay-float">
+        <g className="bay-squish">
+          <ellipse cx="119" cy="282" rx="28" ry="25" fill={shell} stroke="#dde5d9" />
+          <ellipse cx="180" cy="282" rx="28" ry="25" fill={shell} stroke="#dde5d9" />
+          <g className="bay-arm-left">
+            <ellipse cx="72" cy="210" rx="24" ry="53" transform="rotate(16 72 210)" fill={shell} stroke="#e2e9df" />
+          </g>
+          <g className="bay-wave">
+            <ellipse cx="230" cy="189" rx="24" ry="51" transform="rotate(-32 230 189)" fill={shell} stroke="#e2e9df" />
+            <ellipse cx="251" cy="151" rx="24" ry="26" fill={shell} />
+            <path d="m251 133 2 8m8-3 1 7" fill="none" stroke="#e0e7dc" strokeWidth="2.5" strokeLinecap="round" />
+          </g>
+          <ellipse cx="150" cy="217" rx="79" ry="78" fill={shell} stroke="#dce5d8" />
+          <ellipse cx="140" cy="232" rx="51" ry="43" fill="#fff" opacity=".28" />
+          <g className="bay-head">
+            <ellipse cx="150" cy="112" rx="72" ry="53" fill={shell} stroke="#dde5d9" />
+            <g className="bay-face">
+              <ellipse cx="104" cy="127" rx="10" ry="5" fill="#eab6aa" opacity=".38" />
+              <ellipse cx="196" cy="127" rx="10" ry="5" fill="#eab6aa" opacity=".38" />
+              <path d="M122 112h56" stroke="#29372f" strokeWidth="2.8" strokeLinecap="round" />
+              <g className="bay-eyes" fill="#29372f">
+                <circle cx="121" cy="112" r="7.5" />
+                <circle cx="179" cy="112" r="7.5" />
+              </g>
+            </g>
+          </g>
+          <g className="bay-heart">
+            <circle cx="181" cy="185" r="12" fill="#edf3e6" stroke="#d4dfcc" />
+            <path d="M181 190s-7-4-7-8a3.8 3.8 0 0 1 7-2 3.8 3.8 0 0 1 7 2c0 4-7 8-7 8" fill="#a4b795" />
+          </g>
         </g>
-        <ellipse
-          cx="151"
-          cy="105"
-          rx="64"
-          ry="44"
-          fill="url(#body)"
-          stroke="#e0e4df"
-        />
-        <path d="M126 106h50" stroke="#252f2c" strokeWidth="3" />
-        <g className="eyes">
-          <circle cx="123" cy="106" r="6" fill="#252f2c" />
-          <circle cx="179" cy="106" r="6" fill="#252f2c" />
-        </g>
-        <circle cx="184" cy="169" r="9" fill="#f8faf7" stroke="#cbd3cb" />
-        <path d="M180 169h8m-4-4v8" stroke="#b3beb2" />
+      </g>
+      <g className="bay-orbit" fill="#819b71" aria-hidden="true">
+        <circle className="bay-dot" cx="126" cy="318" r="4" />
+        <circle className="bay-dot" cx="150" cy="318" r="4" />
+        <circle className="bay-dot" cx="174" cy="318" r="4" />
       </g>
     </svg>
   );
 }
+
 // Mastra-backed adapter: streams text from the Baymax agent (proxied to the
 // Mastra server by Vite at /api). Agent tool calls decide which care card to
 // show; prescription and travel have no agent tool yet, so keywords pick them.
@@ -595,6 +587,12 @@ function Chat() {
             components={{ UserMessage, AssistantMessage }}
           />
         </ThreadPrimitive.Viewport>
+        <ThreadPrimitive.If running>
+          <div className="bay-response" role="status">
+            <span className="bay-response-dots" aria-hidden="true"><i /><i /><i /></span>
+            Baymax is responding…
+          </div>
+        </ThreadPrimitive.If>
         <div className="quick-actions">
           {[
             { label: "Daily plan", prompt: "Help me prepare for a hackathon" },
