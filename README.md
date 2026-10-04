@@ -67,6 +67,14 @@ npm run preview
 
 ## Implemented frontend
 
+### Apple Health Shortcut
+
+Use **Privacy & preferences → Connect Apple Health** to pair an iPhone Shortcut with a saved care space. The signed Shortcut sends recent steps, exercise minutes, sleep, and water; Baymax stores daily summaries and uses them in the existing daily-metrics agent tool. Missing readings stay unknown. Users can rotate the key or disconnect and delete imports.
+
+Apply migration `003_apple_health.sql`, then use `npm run shortcut:local` for local Mac/iPhone Wi-Fi setup. See [the setup guide](docs/apple-health-shortcut.md) for installation, data handling, and the required first real-iPhone check. The initial integration is user-run and does not include running workouts.
+
+The following frontend capabilities are also implemented:
+
 - Conversation-first Assistant UI runtime streaming live Mastra responses through Neon AI Gateway.
 - Generative UI rendered through `makeAssistantToolUI` and tool-call message parts.
 - Agent-generated care plan and doctor brief contents populate editable cards and their corresponding pages.
@@ -140,7 +148,7 @@ Health information deserves deliberate protection. Our goal is a HIPAA-compliant
 
 Implemented persistence safeguards: explicit storage consent, server-only credentials, hashed random browser session IDs, HttpOnly/SameSite cookies (Secure on HTTPS), write-origin checks, bounded schema validation, parameterized queries, revision checks, and remote deletion.
 
-The new health tools and `/health` endpoints inherited from main still use shared, synthetic in-memory sample data; the saved browser workspace is separate from that demo store. Restoring a workspace preserves its saved check-in, hydration, and weekly overview instead of replacing them with demo values.
+Unconnected health tools use shared, synthetic in-memory sample data; the saved browser workspace is separate from that demo store. A connected Apple Health workspace uses its own persisted daily readings, with missing readings left unknown. Restoring a workspace preserves its saved check-in, hydration, and weekly overview instead of replacing them with demo values.
 
 Account authentication, access audit logging, cross-device access, file upload, export of the entire workspace, and compliance review remain future work. Further safeguards include:
 
@@ -193,4 +201,3 @@ Baymax is intended to support organization, habits, and healthcare conversations
 ---
 
 **Baymax: caring enough to remind you again.**
-
