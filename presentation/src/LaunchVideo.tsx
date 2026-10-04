@@ -31,7 +31,7 @@ export const DemoChapter:React.FC<{scene:DemoScene;index:number}>=({scene,index}
  const wide=(scene.id==='welcome'&&current===3)||(scene.id==='care'&&current===5)||scene.id==='brief'||(scene.id==='travel'&&current===3);
  const mode=wide?'overview':scene.id==='prescription'?'refill':scene.id==='care'&&current===0?'conversation':scene.id==='travel'?'travel':'personal';
  const title=scene.id==='care'?(current===0?'Make room\nfor you.':current===3?'How are\nyou, really?':current===4?'A little\nwin.':'Small steps.\nEvery day.'):scene.id==='prescription'?(current>=4?'All set.':current>=2?'One last\nlook.':'A refill.\nMade simple.'):scene.id==='travel'?'Care,\nwherever\nyou go.':scene.id==='welcome'?'Start with\nhello.':headlines[scene.id];
- return <AbsoluteFill className={`canvas demo layout-${mode} ${scene.id==='care'&&(current===3||current===4)?'variant-checkin':''}`}>
+ return <AbsoluteFill className={`canvas demo layout-${mode} ${scene.id==='care'&&(current===3||current===4)?'variant-checkin':''} ${scene.id==='prescription'&&current<2?'variant-shopping':''}`}>
  <div className="scene-copy" style={{opacity:enter}}><div className="scene-kicker">{scene.id==='prescription'?'PRESCRIPTION REFILL':scene.id==='travel'?'TRAVEL CARE':scene.id==='brief'?'DOCTOR BRIEF':scene.id==='welcome'?'MEET BAYMAX':'EVERYDAY CARE'}</div><h2>{wide?headlines[scene.id]:title}</h2><div className="scene-rule"/></div>
  <div className="feature-stage" style={{opacity:enter}}><DemoApp sceneId={scene.id} step={current} stepFrame={f-captionAt}/></div>
  </AbsoluteFill>;

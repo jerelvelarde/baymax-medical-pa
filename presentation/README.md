@@ -48,3 +48,5 @@ The Baymax adaptation keeps its approximately 65-second sequence, sage/cream/for
 Claims remain limited to the example UI: conversation, daily care steps, travel preparation, simulated refill review, and a health-brief email draft. No backend execution is implied. TypeScript and representative intro/demo/outro frames were checked in Studio; no video export was rendered.
 
 The reminder phone scene recreates the user-supplied Baymax reminder UI as editable components. Medication, refill, and movement notifications enter in sequence over eight seconds. The appointment example uses symptoms, medication review, and questions for a doctor; no hackathon scenario remains. The positioning describes security and compliance as design intent, not a certification claim.
+
+Prescription browsing uses three image-led pharmacy cards with a locally bundled sample refill image in `public/medicines/`. These represent the same sample refill, not alternative medication recommendations. Selected packaging carries into the review card; pharmacy names, availability, and prices remain illustrative.
