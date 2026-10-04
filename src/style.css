@@ -1620,60 +1620,14 @@ header > .icon {
   padding: 0;
 }
 
-/* Three poses: a shared breath, one greeting, and a quiet response lift. */
+/* Mascot pose interpolation lives in Mascot.tsx; no competing CSS transforms. */
 .mascot { isolation: isolate; }
-.bay-pose { transition: transform 850ms cubic-bezier(.22,1,.36,1); }
-.bay-breathe { transform-origin: 150px 296px; animation: bay-breath 6s cubic-bezier(.45,0,.55,1) infinite; }
-.bay-greeting { transform-origin: 150px 291px; animation: bay-greet-body 2.8s .4s both; }
-.bay-wave { transform-origin: 198px 155px; animation: bay-greet-arm 2.8s .4s both; }
-.bay-head { transform-origin: 150px 135px; animation: bay-greet-head 2.8s .4s both; }
-.bay-eyes { transform-origin: 150px 105px; animation: bay-blink 8s 3.4s infinite; }
-.bay-shadow { transform-origin: 150px 304px; animation: bay-ground 6s cubic-bezier(.45,0,.55,1) infinite; }
-.bay-orbit { opacity: 0; transition: opacity 650ms ease; }
-.app:has(.bay-response) .agent-header .bay-orbit { opacity: 1; }
-.app:has(.bay-response) .agent-header .bay-pose { transform: translateY(-3px); }
-.app:has(.bay-response) .agent-header .bay-intent { animation: bay-acknowledge 900ms both; }
-.bay-dot, .bay-response-dots i { transform-box: fill-box; transform-origin: center; animation: bay-dot 1.8s ease-in-out infinite; }
-.bay-dot:nth-child(2), .bay-response-dots i:nth-child(2) { animation-delay: -1.6s; }
-.bay-dot:nth-child(3), .bay-response-dots i:nth-child(3) { animation-delay: -1.4s; }
 .bay-response { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 24px; color: #738369; font-size: 10px; }
 .bay-response-dots { display: inline-flex; align-items: center; gap: 4px; height: 18px; }
-.bay-response-dots i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #718267; }
+.bay-response-dots i { display: block; width: 4px; height: 4px; border-radius: 50%; background: #718267; animation: bay-status-dot 1.8s ease-in-out infinite; }
+.bay-response-dots i:nth-child(2) { animation-delay: -.2s; }
+.bay-response-dots i:nth-child(3) { animation-delay: -.4s; }
+@keyframes bay-status-dot { 0%,100% { transform: translateY(0); opacity: .4; } 50% { transform: translateY(-2px); opacity: .9; } }
 .agent-header .small { width: 78px; height: 78px; margin-top: -6px; margin-bottom: -6px; }
-@keyframes bay-breath {
-  0%,100% { transform: translateY(0) scale(1,1); }
-  50% { transform: translateY(-1.5px) scale(1.008,1.012); }
-}
-@keyframes bay-ground { 0%,100% { opacity: .08; transform: scaleX(1); } 50% { opacity: .065; transform: scaleX(.96); } }
-@keyframes bay-greet-body {
-  0%,100% { transform: rotate(0); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-  18% { transform: rotate(1deg) translateY(1px); animation-timing-function: cubic-bezier(.22,1,.36,1); }
-  43%,62% { transform: rotate(-2deg); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-  85% { transform: rotate(.4deg); }
-}
-@keyframes bay-greet-arm {
-  0%,12%,100% { transform: rotate(0); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-  22% { transform: rotate(7deg); animation-timing-function: cubic-bezier(.22,1,.36,1); }
-  43% { transform: rotate(-118deg); animation-timing-function: ease-in-out; }
-  54% { transform: rotate(-105deg); animation-timing-function: ease-in-out; }
-  64% { transform: rotate(-115deg); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-  92% { transform: rotate(2deg); }
-}
-@keyframes bay-greet-head {
-  0%,24%,100% { transform: rotate(0); animation-timing-function: ease-in-out; }
-  48%,65% { transform: rotate(3deg); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-}
-@keyframes bay-blink { 0%,44%,48%,100% { transform: scaleY(1); } 46% { transform: scaleY(.08); } }
-@keyframes bay-acknowledge {
-  0%,100% { transform: translateY(0); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-  24% { transform: translateY(4px); animation-timing-function: cubic-bezier(.22,1,.36,1); }
-  70% { transform: translateY(-.7px); }
-}
-@keyframes bay-dot { 0%,100% { transform: translateY(0) scale(1); opacity: .4; } 50% { transform: translateY(-2.5px) scale(1.1); opacity: .9; } }
-@media (max-width: 760px) {
-  .agent-header .small { width: 70px; height: 70px; margin-top: -4px; margin-bottom: -6px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .mascot *, .bay-response-dots i { animation: none !important; transition: none !important; transform: none !important; }
-  .bay-dot, .bay-response-dots i { opacity: .8; }
-}
+@media (max-width: 760px) { .agent-header .small { width: 70px; height: 70px; margin-top: -4px; margin-bottom: -6px; } }
+@media (prefers-reduced-motion: reduce) { .bay-response-dots i { animation: none !important; } }
