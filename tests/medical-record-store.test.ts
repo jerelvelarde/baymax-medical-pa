@@ -1,0 +1,90 @@
+import { test, before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile, readdir } from 'node:fs/promises';
+import { PGlite } from '@electric-sql/pglite';
+import { getMedicalRecord, applyRecordChanges, ingestMedicalDocument, readMedicalDocument, proposeDocumentChanges, reviewDocumentProposal } from '../src/mastra/medical-record/store';
+const db = new PGlite();
+const q = async (sql: string, params: unknown[]) => (await db.query<Record<string,unknown>>(sql,params)).rows;
+const a={q,userId:'00000000-0000-4000-8000-000000000001'}, b={q,userId:'00000000-0000-4000-8000-000000000002'};
+const entry={kind:'condition',label:'Asthma',clinicalStatus:'active',data:{}} as const;
+before(async()=>{for(const file of (await readdir(new URL('../migrations/',import.meta.url))).filter(f=>f.endsWith('.sql')).sort()) await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8')); await q("INSERT INTO users(id,name,is_demo) VALUES ($1,'A',true),($2,'B',false)",[a.userId,b.userId]); await q("INSERT INTO user_conditions(user_id,name) VALUES ($1,'Legacy asthma')",[a.userId]);});
+after(()=>db.close());
+test('lazy bootstrap, isolation, persistence, idempotency and atomic CAS rollback',async()=>{
+ const initial=await getMedicalRecord(a); assert.equal(initial.entries.length,2); assert.equal(initial.demo,true); assert.equal((await getMedicalRecord(b)).entries.length,1);
+ const input={operationId:'add-1',userStatement:'I have asthma',changes:[{operation:'add',entry}]} as const;
+ const receipt=await applyRecordChanges({...input,changes:[...input.changes]},a); assert.deepEqual(await applyRecordChanges({...input,changes:[...input.changes]},a),receipt);
+ await assert.rejects(applyRecordChanges({...input,userStatement:'different',changes:[...input.changes]},a),/conflict/i);
+ const added=receipt.entries[0]; const before=await getMedicalRecord(a);
+ await assert.rejects(applyRecordChanges({operationId:'bad-batch',userStatement:'edit',changes:[{operation:'add',entry},{operation:'update',id:added.id,expectedVersion:99,entry}]},a),/conflict/i); assert.deepEqual(await getMedicalRecord(a),before);
+ await assert.rejects(applyRecordChanges({operationId:'foreign',userStatement:'edit',changes:[{operation:'retract',id:added.id,expectedVersion:1,reason:'wrong'}]},b),/conflict/i);
+ const update=await applyRecordChanges({operationId:'edit',userStatement:'resolved',changes:[{operation:'update',id:added.id,expectedVersion:1,entry:{...entry,clinicalStatus:'resolved'}}]},a); assert.equal(update.entries[0].version,2); assert.equal((await getMedicalRecord(a)).history.at(-1)?.before?.content.clinicalStatus,'active');
+ const all=(await getMedicalRecord(a)).entries; await applyRecordChanges({operationId:'retract-all',userStatement:'remove',changes:all.map(e=>({operation:'retract',id:e.id,expectedVersion:e.version,reason:'remove'}))},a); assert.equal((await getMedicalRecord(a)).entries.length,0); assert.equal((await getMedicalRecord(a)).entries.length,0);
+});
+test('immutable documents, exact evidence, proposal review and ownership',async()=>{
+ const doc=await ingestMedicalDocument({name:'Visit',mimeType:'text/plain',text:'Asthma diagnosed today.',origin:{type:'upload',locator:'visit.txt'}},a);
+ assert.equal((await readMedicalDocument(doc.id,a)).text,'Asthma diagnosed today.'); await assert.rejects(readMedicalDocument(doc.id,b),/not found/i);
+ await assert.rejects(proposeDocumentChanges({documentId:doc.id,changes:[{change:{operation:'add',entry},quote:'asthma'}]},a),/quote/i);
+ await assert.rejects(proposeDocumentChanges({documentId:doc.id,changes:[{change:{operation:'add',entry},quote:'Asthma'}]},b),/not found/i);
+ const proposal=await proposeDocumentChanges({documentId:doc.id,changes:[{change:{operation:'add',entry},quote:'Asthma'}]},a); assert.equal((await getMedicalRecord(a)).entries.length,0);
+ const receipt=await reviewDocumentProposal(proposal.id,'accept',a); assert.equal(receipt?.entries[0].provenance.documentId,doc.id); assert.equal(receipt?.entries[0].provenance.quote,'Asthma'); assert.deepEqual(await reviewDocumentProposal(proposal.id,'accept',a),receipt);
+ const rejected=await proposeDocumentChanges({documentId:doc.id,changes:[{change:{operation:'add',entry},quote:'diagnosed'}]},a); assert.equal(await reviewDocumentProposal(rejected.id,'reject',a),null); await assert.rejects(reviewDocumentProposal(rejected.id,'accept',a),/conflict/i);
+ const stale=await proposeDocumentChanges({documentId:doc.id,changes:[{change:{operation:'update',id:receipt!.entries[0].id,expectedVersion:99,entry},quote:'Asthma'}]},a); await assert.rejects(reviewDocumentProposal(stale.id,'accept',a),/conflict/i); assert.equal((await getMedicalRecord(a)).proposals.find(p=>p.id===stale.id)?.status,'pending');
+});
+test('concurrent retries serialize and one concurrent CAS succeeds',async()=>{
+ const payload={operationId:'concurrent',userStatement:'asthma',changes:[{operation:'add' as const,entry}]};
+ const receipts=await Promise.all(Array.from({length:5},()=>applyRecordChanges(payload,b))); for(const r of receipts) assert.deepEqual(r,receipts[0]);
+ const id=receipts[0].entries[0].id;
+ const results=await Promise.allSettled([1,2].map(i=>applyRecordChanges({operationId:`cas-${i}`,userStatement:'update',changes:[{operation:'update',id,expectedVersion:1,entry}]},b))); assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+ // Updating an early array position must not disturb add identifiers in a mixed batch.
+ const batch=await applyRecordChanges({operationId:'mixed',userStatement:'edit and add',changes:[{operation:'add',entry},{operation:'update',id,expectedVersion:2,entry},{operation:'add',entry}]},b); assert.equal(new Set(batch.entries.map(e=>e.id)).size,3);
+});
+test('bootstrap includes library labs/body measurements and excludes chat-upload labs permanently',async()=>{
+ const c={q,userId:'00000000-0000-4000-8000-000000000003'};
+ await q("INSERT INTO users(id,name,is_demo) VALUES ($1,'C',false)",[c.userId]);
+ await q("INSERT INTO records(user_id,id,name,source,format,content,size_bytes) VALUES ($1,'library','Library','library','text','library evidence',16),($1,'chat','Chat','upload','text','chat evidence',13)",[c.userId]);
+ await q("INSERT INTO lab_results(user_id,record_id,biomarker,value,unit,measured_on) VALUES ($1,'library','Library marker',4,'mg','2026-01-01'),($1,'chat','Chat marker',8,'mg','2026-01-01')",[c.userId]);
+ await q("INSERT INTO body_measurements(user_id,measured_on,type,value,unit) VALUES ($1,'2026-01-01','Weight',70,'kg')",[c.userId]);
+ const first=await getMedicalRecord(c); assert.deepEqual(first.entries.map(e=>e.content.label).sort(),['C','Library marker','Weight']); assert.ok(first.entries.every(e=>e.provenance.type==='legacy_import'));
+ await q("INSERT INTO user_conditions(user_id,name) VALUES ($1,'Late legacy fact')",[c.userId]); assert.deepEqual(await getMedicalRecord(c),first);
+ await assert.rejects(applyRecordChanges({operationId:'bad-provenance',userStatement:'add',changes:[{operation:'add',entry,provenance:{type:'document'}}]} as never,c));
+ const source=await ingestMedicalDocument({name:'Source',mimeType:'text/plain',text:'Exact source',origin:{type:'computer',locator:'/source.txt'}},c); const reread=await readMedicalDocument(source.id,c); assert.equal(reread.sha256, '648c520e248586764397a6fe22b2ba0c0c739940bcf37e25992ce232cf778835');
+});
+test('database preserves immutable evidence/audit and rejects foreign library attribution',async()=>{
+ const record=await getMedicalRecord(a), doc=record.documents[0], event=record.history[0];
+ await assert.rejects(q("UPDATE medical_record_documents SET value=value || '{\"text\":\"tampered\"}'::jsonb WHERE user_id=$1 AND id=$2",[a.userId,doc.id]),/immutable/i);
+ await assert.rejects(q("UPDATE medical_record_events SET value='{}' WHERE user_id=$1 AND id=$2",[a.userId,event.id]),/immutable/i);
+ await assert.rejects(ingestMedicalDocument({name:'Foreign source',mimeType:'text/plain',text:'fabricated',origin:{type:'library',locator:'library',recordId:'library'}},b),/not found/i);
+ assert.equal((await readMedicalDocument(doc.id,a)).text,'Asthma diagnosed today.');
+});
+test('existing source snapshots must match stored name/text and owned upload conversation',async()=>{
+ const c={q,userId:'00000000-0000-4000-8000-000000000003'};
+ const library={name:'Library',mimeType:'text/plain',text:'library evidence',origin:{type:'library' as const,locator:'library',recordId:'library'}};
+ await assert.rejects(ingestMedicalDocument({...library,text:'fabricated'},c),/source payload/i);
+ await assert.rejects(ingestMedicalDocument({...library,name:'fabricated'},c),/source payload/i);
+ assert.equal((await ingestMedicalDocument(library,c)).name,'Library');
+ await assert.rejects(ingestMedicalDocument({...library,origin:{type:'upload',locator:'library',recordId:'library'}},c),/not found/i);
+ const conversationId='00000000-0000-4000-8000-000000000099';
+ await q('INSERT INTO conversations(id,user_id) VALUES($1,$2)',[conversationId,c.userId]);
+ await q('UPDATE records SET conversation_id=$2 WHERE user_id=$1 AND id=\'chat\'',[c.userId,conversationId]);
+ const upload={name:'Chat',mimeType:'text/plain',text:'chat evidence',origin:{type:'upload' as const,locator:'chat',recordId:'chat',conversationId}};
+ await assert.rejects(ingestMedicalDocument({...upload,text:'fabricated'},c),/payload/i);
+ await assert.rejects(ingestMedicalDocument({...upload,origin:{...upload.origin,conversationId:a.userId}},c),/conversation/i);
+ await assert.rejects(ingestMedicalDocument({...upload,origin:{type:'upload',locator:'chat',recordId:'chat'}},c),/conversation/i);
+ assert.equal((await ingestMedicalDocument(upload,c)).name,'Chat');
+ await q('UPDATE conversations SET user_id=$2 WHERE id=$1',[conversationId,a.userId]);
+ await assert.rejects(ingestMedicalDocument({...upload,origin:{...upload.origin,locator:'changed-locator'}},c),/conversation/i);
+ assert.equal((await ingestMedicalDocument({name:'Independent',mimeType:'text/plain',text:'extracted text',origin:{type:'upload',locator:'independent.txt'}},c)).name,'Independent');
+ await assert.rejects(applyRecordChanges({operationId:'proposal:forged',userStatement:'forged',changes:[{operation:'add',entry}]},c));
+});
+test('document/proposal fingerprints return original snapshots and reviewed status on retry',async()=>{
+ const input={name:'Retry source',mimeType:'text/plain',text:'Asthma retry evidence',origin:{type:'upload' as const,locator:'retry.txt'}};
+ const first=await ingestMedicalDocument(input,b); assert.deepEqual(await ingestMedicalDocument(input,b),first);
+ const different=await ingestMedicalDocument({...input,text:'Different retry evidence'},b); assert.notEqual(first.id,different.id);
+ const proposalInput={documentId:first.id,changes:[{change:{operation:'add' as const,entry},quote:'Asthma'}]};
+ const proposal=await proposeDocumentChanges(proposalInput,b); assert.deepEqual(await proposeDocumentChanges(proposalInput,b),proposal);
+ const accepted=await reviewDocumentProposal(proposal.id,'accept',b); const record=await getMedicalRecord(b);
+ const retry=await proposeDocumentChanges(proposalInput,b); assert.equal(retry.id,proposal.id); assert.equal(retry.status,'accepted'); assert.deepEqual(await reviewDocumentProposal(retry.id,'accept',b),accepted);
+ assert.equal((await getMedicalRecord(b)).entries.length,record.entries.length);
+ assert.notEqual((await proposeDocumentChanges({...proposalInput,changes:[{...proposalInput.changes[0],quote:'retry'}]},b)).id,proposal.id);
+ await assert.rejects(proposeDocumentChanges(proposalInput,a),/not found/i);
+});

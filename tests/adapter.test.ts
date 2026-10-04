@@ -70,3 +70,14 @@ test('preserves streamed search sources alongside fitness and actual care result
   assert.equal(cards.find(card => card.toolName === 'care_action')?.result?.title, 'Actual plan');
   assert.ok(output.some(item => item.content?.some(part => part.type === 'tool-call' && part.toolName === 'web_search' && part.args.state === 'loading')));
 });
+
+test('medical edits and document proposals render distinct receipts only for validated results', async () => {
+  const entry = { id: 'entry', version: 1, status: 'current', content: { kind: 'allergy', label: 'Penicillin', clinicalStatus: 'active', data: { reaction: 'rash' } }, provenance: { type: 'user_chat' }, createdAt: '2026-10-04', updatedAt: '2026-10-04' };
+  const frames = [{ type: 'tool-result', payload: { toolName: 'changeMedicalRecordTool', toolCallId: 'medical', result: { saved: true, operationId: 'edit', revision: 1, entries: [entry] } } }, { type: 'tool-result', payload: { toolName: 'proposeMedicalDocumentTool', toolCallId: 'proposal', result: { requiresReview: true, proposal: { id: 'proposal', documentId: 'doc', status: 'pending', createdAt: '2026-10-04', changes: [{ change: { operation: 'add', entry: entry.content }, quote: 'Penicillin allergy' }] } } } }, { type: 'finish' }];
+  const adapter = createAgentAdapter({ fetch: async () => response(frames.map(frame => `data: ${JSON.stringify(frame)}\n\n`)) });
+  let last: any;
+  for await (const item of adapter.run({ messages: [], abortSignal: new AbortController().signal } as any)) last = item;
+  assert.deepEqual(last.content.map((part: any) => part.toolName), ['change-medical-record', 'propose-medical-document-changes']);
+  const invalid = createAgentAdapter({ fetch: async () => response([`data: ${JSON.stringify({ type: 'tool-result', payload: { toolName: 'changeMedicalRecordTool', result: { saved: true } } })}\n\n`, 'data: {"type":"finish"}\n\n']) });
+  await assert.rejects(async () => { for await (const _ of invalid.run({ messages: [], abortSignal: new AbortController().signal } as any)) {} }, /could not be verified/);
+});

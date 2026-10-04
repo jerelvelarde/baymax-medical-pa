@@ -1,0 +1,15 @@
+# Longitudinal medical record
+
+Build one user-scoped, structured medical record that persists across chats. Retain source documents and distinguish what the user reported, what a document supports, and what is synthetic demo history. The record's categories follow the clinical distinctions in HL7 FHIR (https://hl7.org/fhir/resourceguide.html); this implementation is an application domain model, not a FHIR server.
+
+Sections: demographics, conditions, medications, allergies, observations (labs/vitals), encounters, procedures, immunizations, family history, social history, care team, care plans, clinical notes, insurance, and advance directives. Unknown fields remain absent. Empty sections mean not recorded; they do not establish a negative medical finding. Entries have clinical status, effective date when known, recorded time, source, version, and retraction history.
+
+Chat can read/query the complete record, add user-reported facts, correct versioned entries, and retract mistakes without deleting audit history. Recording a clinician's reported medication change is allowed; prescribing/changing treatment is not. Tool inputs never choose a user identity. The current deployment has one fixed demo identity; every database operation uses the existing trusted identity seam so a future authentication implementation can replace it without rewriting the record layer.
+
+Document ingestion stores immutable extracted text, hash, file/source metadata and optional dates. The files/computer agent can call a documented ingestion interface with extracted text and trusted Ctx; this work does not read host files, change computer tools, or copy unrelated files. Existing chat uploads can be registered through their scoped record id. The medical agent extracts candidate entries, links exact quotes to the stored document, and proposes additions/corrections. A user review in the app accepts/rejects a proposal. Proposed facts do not appear in the established record or doctor briefs before acceptance.
+
+Storage is normalized entries plus immutable documents, proposals and append-only audit receipts in Postgres. All mutations are atomic, idempotent by operation id, version checked, and user scoped. Legacy profile, medications, allergies, conditions, built-in labs and measurements are imported once with explicit legacy/demo provenance. Existing user-info and brief readers use the canonical record so corrections/retractions immediately affect downstream context. Demo resets must clear the canonical record too.
+
+A Medical record page shows all sections, source/status/date per entry, unknown sections, document proposals, and edit history; chat displays mutation/proposal receipts that link to the page. Focus remains medical data, leaving the other agent's computer/files implementation separate.
+
+Verify with PGlite migrations + real persistence tests, cross-user tests, conflict/idempotency/rollback, quote validation, proposal acceptance/rejection, legacy projection and reset, route/tool integration, frontend/agent builds, and browser UI flow. Do not mutate the shared live database or import real patient data during verification.

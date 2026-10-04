@@ -13,7 +13,7 @@ registerRoute(new NavigationRoute(async options => {
   } catch {
     return await matchPrecache('/offline.html');
   }
-}, { denylist: [/^\/api(?:\/|\?|$)/, /^\/travel(?:\/|\?|$)/] }));
+}, { denylist: [/^\/medical-record(?:\/|\?|$)/, /^\/api(?:\/|\?|$)/, /^\/travel(?:\/|\?|$)/] }));
 
 // Initial installation takes control. Later versions wait for explicit consent.
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));

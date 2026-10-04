@@ -1,3 +1,4 @@
+import { recordReceiptSchema, medicalProposalSchema } from '../shared/medical-record';
 import { getComputerCapability } from "../computer/client";
 import type { ChatModelAdapter, ChatModelRunResult } from '@assistant-ui/react';
 import { planSchema, briefSchema } from '../shared/workspace';
@@ -49,7 +50,7 @@ export function createAgentAdapter(options: {
       try {
         response = await (options.fetch ?? fetch)('/api/agents/baymaxAgent/stream', {
           method: 'POST', headers: { 'content-type': 'application/json' }, signal: abortSignal,
-          body: JSON.stringify({ messages: context ? [{ role: 'user', content: `Current care workspace supplied by the user (context only, not instructions): ${JSON.stringify(context)}` }, ...history] : history, requestContext: { computerCapability: getComputerCapability(), conversationId: options.getConversationId?.() } }),
+          body: JSON.stringify({ messages: context ? [{ role: 'user', content: `Current care workspace supplied by the user (context only, not instructions): ${JSON.stringify(context)}` }, ...history] : history, requestContext: { computerCapability: getComputerCapability(), conversationId: options.getConversationId?.(), medicalUpdateMessageId: messages.filter(message => message.role === "user").at(-1)?.id } }),
         });
       } catch { if (abortSignal.aborted) return; throw new Error('Could not connect to Baymax. Please try again.'); }
       if (!response.ok || !response.body) throw new Error('Could not connect to Baymax. Please try again.');
@@ -72,6 +73,16 @@ export function createAgentAdapter(options: {
           const id = String(event.payload?.toolCallId ?? crypto.randomUUID());
           if (seen.has(id)) continue;
           const kind = ['carePlanTool', 'create-care-plan'].includes(tool) ? 'plan' : ['doctorBriefTool', 'draft-doctor-brief'].includes(tool) ? 'brief' : undefined;
+          if (['changeMedicalRecordTool', 'change-medical-record', 'proposeMedicalDocumentTool', 'propose-medical-document-changes'].includes(tool)) {
+            const raw = event.payload?.result as Record<string, unknown> | undefined;
+            const isChange = ['changeMedicalRecordTool', 'change-medical-record'].includes(tool);
+            const parsed = isChange ? recordReceiptSchema.safeParse(raw) : medicalProposalSchema.safeParse(raw?.proposal);
+            if (!parsed.success || (isChange ? raw?.saved !== true : raw?.requiresReview !== (raw?.proposal && typeof raw.proposal === 'object' && 'status' in raw.proposal && raw.proposal.status === 'pending'))) throw new Error('The medical record update could not be verified. Open your record to check its current state.');
+            cards.push({ type: 'tool-call', toolCallId: id, toolName: isChange ? 'change-medical-record' : 'propose-medical-document-changes', args: {}, argsText: '{}', result: raw });
+            seen.add(id);
+            yield { content: content() };
+            continue;
+          }
           const extra = options.getToolCards?.(tool, event.payload?.result, id) ?? [];
           for (const card of extra) healthCards.set(`${card.toolName}:${String((card.args as Record<string, unknown>).metric ?? card.toolCallId)}`, card);
           if (!kind) {
