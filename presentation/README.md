@@ -1,112 +1,103 @@
-# Baymax launch presentation
+# Baymax — A little care, every day.
 
-An editable, approximately 98-second landscape launch video built with React components in Remotion. The demos are frame-driven UI scenes, so text stays sharp and every interaction can be adjusted without re-recording footage.
+A three-minute, component-driven presentation with **full application mockups**,
+including the navigation, conversation history, tool results, composer, profile,
+and shared computer. All records and tool results in the deck are illustrative.
+The deck does not call the live backend, send orders, generate real patient PDFs,
+or send documents. The actual app is separate at `http://127.0.0.1:5184/`.
 
-## Open Remotion Studio
+## Present in the browser
 
-```sh
+```bash
 cd presentation
-npm ci --cache /tmp/baymax-remotion-npm-cache
-npm run studio
+npm ci
+npm run build:slides
 ```
 
-Open http://localhost:3100/Baymax-Launch. No exported video is included.
+Open `out/baymax-slides.html` in a browser. The single HTML file includes its
+JavaScript, styles, mascot sprites and product images. It can be copied to another
+computer and used offline. Rebuild after changing the presentation source.
 
-## Source
+For a local HTTP preview:
 
-- `src/LaunchVideo.tsx`: intro, chapter headlines, and closing card.
-- `src/scene-data.json`: chapter timing and interaction beat labels (not displayed as captions).
-- `src/demo/DemoApp.tsx`: onboarding, daily care, travel, and doctor brief scenes.
-- `src/demo/PrescriptionShoppingCard.tsx`: prescription UI adapted from the app with deterministic demo state.
-- `src/demo/demo-app.css` and `src/video.css`: large UI typography and presentation layout.
-- `public/mascot/`: Baymax sprite assets.
+```bash
+python3 -m http.server 3101 --directory out
+```
 
-Sequence: Baymax introduction → medical appointment preparation and daily check-in → notification cards → travel preparation → prescription review → shared computer → doctor brief and email review → closing.
+Open `http://localhost:3101/baymax-slides.html`.
 
-The scenes use local example data and do not call the app backend, place orders, or send email. UI steps advance according to the composition frame. The prescription and email flows show review and confirmation boundaries.
+- The section picker and **← / →** choose one of seven sections.
+- Each section plays at its scripted pace and loops until you advance.
+- **Pause / Space** pauses or resumes; **Replay** restarts the section.
+- The named action buttons jump to that moment and pause for inspection.
+- **Narration / N** shows the supplied spoken script in large type, with screen actions in green.
+- **Fullscreen / F** enters fullscreen; Escape exits.
+- **Hide controls / H** hides the toolbar and notes for an unobstructed stage.
+- `#slide=3` opens directly at Travel and medication.
 
-## Check source
+The continuous `Baymax-Launch` Studio composition is exactly **180 seconds**.
+Manual slide mode does not auto-advance; transitions and rehearsal pauses are
+controlled by the presenter. No spoken audio has been synthesized.
 
-```sh
+## Story and timing
+
+| Time | Section | Screen action |
+| --- | --- | --- |
+| 0:00–0:25 | Hook | Scattered records → travel context → Baymax title |
+| 0:25–0:55 | Daily care | Today → Low → Save check-in → “How was my week?” → four health cards |
+| 0:55–1:25 | Travel and medication | Sydney refill request → recorded metformin → unverified purchase plan → review |
+| 1:25–1:50 | Doctor brief | Request a brief → medications, allergies, labs → edit a line → reviewed PDF state |
+| 1:50–2:10 | Shared computer | Files → read doctor-visit.md → prepare visit-summary.md → take over → return control |
+| 2:10–2:50 | Engineering | Mastra + Assistant UI → Neon + model routing → Exa + Apple Health → user review |
+| 2:50–3:00 | Close | Installed-app mockup + reminder concept → Baymax and GitHub link |
+
+The complete narration, timings and rehearsal beats live in
+`src/story/story-data.ts`. All seven sections share the same data in Studio and
+in the browser.
+
+## Studio and source
+
+```bash
+npm run studio     # http://localhost:3100
 npm run typecheck
 ```
 
-Visual direction: minimal wording, clean component demos, sage Baymax branding, and animated mascot sprites. Reference supplied by the user: https://x.com/ataiiam/status/2102400431519592581/video/1 (video playback unavailable during editing).
+- `Baymax-Slides`: select `slideNumber` 1–7 in Studio props; optional final-state hold.
+- `Baymax-Launch`: the continuous three-minute story.
+- `Story-Sections`: individual full-length sections for inspection.
+- `Baymax-Readme-Hero`: the earlier 18-second README highlight composition.
 
-## Interaction choreography
+Key files:
 
-`src/demo/Interaction.tsx` defines the scene-local click schedule. Cursor cues are anchored inside their target controls. Typing, checkbox changes, pharmacy selection, quantity changes, and confirmation states follow frame-based events. These are illustrative interactions, not live backend operations.
+- `src/story/AppShell.tsx`: shared full-app navigation, chat and status UI.
+- `src/story/CareScenes.tsx`: Today, weekly summary, refill review and doctor brief.
+- `src/story/ComputerScene.tsx`: chat, files, terminal and control handoff.
+- `src/story/TitleScenes.tsx`: hook, architecture, mobile concept and closing card.
+- `src/story/StoryPresentation.tsx`: section and continuous composition.
+- `src/BrowserSlides.tsx`: keyboard navigation, playback and narration controls.
+- `scripts/build-slides.mjs`: self-contained HTML build.
 
-Production guidance: [launch-video](https://github.com/jerelvelarde/demo-skills/blob/main/skills/launch-video/SKILL.md) and [ui-mockup-video](https://github.com/jerelvelarde/demo-skills/blob/main/skills/ui-mockup-video/SKILL.md), reviewed at commit `b7410ac`. Review is in Studio; no video export was rendered.
+## Demo boundaries
 
-## OpenDots reference pass
+Use fictional records. Sample readings are labeled and missing sleep data stays
+unknown. The Sydney pharmacy and price are illustrative; availability and
+prescription requirements remain unverified. The shopping flow stops at purchase
+preparation, without prescribing, substitution or an order. The brief and files
+show simulated completion states; a user chooses recipients and sends documents
+outside this mockup. The mobile reminder is a concept, not live push delivery.
 
-Visual reference: user-supplied `OpenDots-Storyboard-v3-1080p.mp4` (1920×1080, 30 fps, 86 seconds). Sampled frames were inspected for title hierarchy, demo framing, backgrounds, and mascot placement. The reference video and audio are not bundled or reused.
+Live Exa research in the actual app requires working authentication. The
+engineering section follows the supplied narration: OpenAI directly in this
+setup, Neon AI Gateway as another supported route, opted-in Neon persistence,
+and an Apple Health Shortcut with a token-authenticated endpoint, hashed token
+storage, and deduplication. The deck itself performs none of those integrations.
 
-The Baymax adaptation keeps its approximately 98-second sequence, sage/cream/forest palette, original sprite assets, and component-based interactions. Feature-specific compositions replace the shared full-width app shell: a compact conversation, a checklist with its action, centered energy and travel cards, a vertical refill card, and wider document review. Headlines sit beside focused tasks or above centered cards, with no changing footer captions. The opening and closing center the Baymax wordmark and sprite. Short frame-driven entrances establish each chapter, then the camera holds steady during the interaction.
+## README hero GIF
 
-Claims remain limited to the example UI: conversation, daily care steps, travel preparation, simulated refill review, and a health-brief email draft. No backend execution is implied. TypeScript and representative intro/demo/outro frames were checked in Studio; no video export was rendered.
+The existing hero has its own editable source in `src/ReadmeHero.tsx`.
+To refresh it from this folder:
 
-The reminder card scene recreates the user-supplied Baymax reminder UI as editable components. Medication, refill, and movement notifications enter in sequence over eight seconds. The appointment example uses symptoms, medication review, and questions for a doctor; no hackathon scenario remains. The positioning describes security and compliance as design intent, not a certification claim.
-
-Prescription browsing now uses three distinct product cards for a type 2 diabetes and marathon-preparation example. See the product notes below. Selected packaging carries into the review card; pharmacy names, availability, and prices remain illustrative.
-
-Reminders are presented as large standalone cards with staggered entrances; the device frame and lock-screen chrome have been removed.
-
-Onboarding now opens with selectable care-goal cards, followed by adding a PDF and prescription image, reviewing extracted medical details, and a completion state. Files and extraction results are illustrative local UI states; no upload or OCR backend runs. `src/demo/OnboardingDemo.tsx` contains this sequence.
-
-## Shared computer and refreshed daily care
-
-The presentation includes editable component demonstrations based on [PR #29](https://github.com/jerelvelarde/baymax-medical-pa/pull/29) and [PR #39](https://github.com/jerelvelarde/baymax-medical-pa/pull/39). Source components and desktop screenshots were inspected. No screenshots are embedded in the video.
-
-- `src/demo/ComputerDemo.tsx` and `computer-demo.css`: a new 18-second chapter before the doctor brief. Shared chat, cyan workspace, Browser/Terminal/Files dock, and control handoff follow PR #29. The session begins unlocked. A request leads to a public guide, a terminal command creates visit-notes.txt, and the user takes over to edit, save, and return control.
-- `src/demo/TodayDemo.tsx` and `today-demo.css`: replaces the old care chapter within its 381-frame slot. Dark sidebar, warm ivory, peach check-in, ink-blue actions, and sky/lavender cards follow PR #39. Select Good, save the check-in, log water and a walk, then review medical appointment preparation. State carries into Plan; the walk also updates its completion count.
-
-Both demos are deterministic illustrations with local example data, not recordings of backend execution. No live browser, terminal, persistence, device sync, or patient data is used. The browser card simplifies and paraphrases [MedlinePlus: Talking With Your Doctor](https://medlineplus.gov/talkingwithyourdoctor.html), inspected October 4, 2026. No third-party logo is bundled. The doctor-visit context replaces the hackathon example in the source screenshots.
-
-| Scene | Local-frame actions |
-| --- | --- |
-| Today / Plan | Good 28; save 65; confirmation 78; water 120; walk 175; open Plan 235; medication list 280; questions 325. |
-| Computer | Send 30; browser result 60; Terminal 155; file written 220; Files 245; take over 325; ownership granted 335; edit 360; save 408; return control 460; hold to 539. |
-
-Cursor cues use the same event constants as the visible state. Edits wait for handoff; save confirmation follows text entry, and the final note preserves changes after returning control. Representative frames were checked in Studio and TypeScript passes. No video export was rendered. Previews: `docs/today-refresh-preview.png` and `docs/computer-demo-preview.png`.
-
-## Diabetes and marathon product cards
-
-The prescription chapter uses an adult example with an existing type 2 diabetes care plan:
-
-- Metformin ER 500 mg, 30 extended-release tablets: an existing prescription refill, with quantity fixed to the example prescription. Example price $9.00.
-- Glucose tablets, 10-tablet travel tube: low-glucose supplies, separate from ordinary race fuel. Example price $2.49.
-- Blood glucose test strips, 50 strips: compatibility with the person's existing meter must be checked. Example price $19.99.
-
-These are illustrative catalog entries, not a personal treatment plan, medication recommendation, live availability, or insurance quote. The flow selects glucose tablets, adds a second tube, and reviews the $4.98 example total. No prescription quantity or medication dose is changed. Marathon training, fueling, monitoring, and medication plans should be individualized with the diabetes care team; the demo provides no dosing or exercise thresholds.
-
-Generic product photos were generated for this presentation, then bundled as JPEGs in `public/medicines/marathon/`. They are illustrative packaging, not manufacturer images or product-identification references. Medical context checked against [ADA exercise guidance](https://diabetes.org/health-wellness/fitness/getting-started-safely) and [ADA blood glucose and exercise](https://diabetes.org/health-wellness/fitness/why-does-exercise-sometimes-raise-blood-sugar). No external image runtime dependency. The browse and review states were checked in Studio; no video export rendered.
-
-## Use-case recap and privacy beat
-
-A five-second privacy slide follows the medical-record upload, before reviewing extracted details. It says “Your privacy comes first” and “Working toward HIPAA readiness,” with an explicit ongoing compliance-review/deployment-qualification status. This follows the repository's documented readiness limits; it does not assert that Baymax or a deployment is HIPAA compliant. Onboarding review and completion retain their original interaction timing after the inserted beat.
-
-A five-second recap before the open-source closing card summarizes medical records, daily care/reminders, refills/supplies, travel preparation, doctor briefs, and the shared computer. Both slides are editable components in `src/demo/OverviewSlides.tsx`. The full composition is now 2,933 frames (97.77 seconds at 30 fps).
-
-## Manual looping slides
-
-Open `http://localhost:3100/Baymax-Slides`. In Studio's right sidebar, edit **slideNumber** (1–13) under Props. Turn on **Loop** in playback options and press Play: only the selected slide repeats. It does not advance to another slide. **holdSeconds** controls the pause on the final state (default 2); **showSlideNumber** toggles the small number badge. The full `Baymax-Launch` video is unchanged.
-
-| Number | Slide |
-| --- | --- |
-| 1 | Meet Baymax |
-| 2 | Choose your goals |
-| 3 | Add medical records |
-| 4 | Privacy first |
-| 5 | Review your records |
-| 6 | Today & your plan |
-| 7 | Gentle reminders |
-| 8 | Travel preparation |
-| 9 | Diabetes & marathon supplies |
-| 10 | Your shared computer |
-| 11 | Doctor-ready brief |
-| 12 | Key use cases |
-| 13 | Fully open source |
-
-`src/SlideDeck.tsx` reuses the existing source components and frame ranges. Changing the slide number recalculates the composition duration. The final-state hold freezes all scene animation, including the mascot, before the next loop. No exported video was rendered.
+```bash
+npx remotion render src/index.ts Baymax-Readme-Hero /tmp/baymax-readme-hero.mp4 --scale=0.5
+ffmpeg -y -i /tmp/baymax-readme-hero.mp4 -filter_complex '[0:v]fps=12,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4' -loop 0 ../docs/media/baymax-hero.gif
+```

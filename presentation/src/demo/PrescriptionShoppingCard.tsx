@@ -1,4 +1,5 @@
-import {Img, staticFile} from 'remotion';
+import {assetFile} from './asset';
+import {Img} from 'remotion';
 import {Cue} from './Interaction';
 import React, {useState, useId} from 'react';
 import {ShoppingBag, Check, Minus, Plus, ArrowUpRight} from './Icons';
@@ -29,7 +30,7 @@ export function PrescriptionShoppingCard({demoState}:{demoState?:PrescriptionDem
   const stage = demoState?.stage ?? localStage;
   const consent = demoState?.consent ?? localConsent;
   const reset = () => {setProductId('metformin');setQuantity(1);setConsent(false);setStage('cart');};
-  const image = (file:string) => staticFile(`medicines/marathon/${file}`);
+  const image = (file:string) => assetFile(`medicines/marathon/${file}`);
   return <section className={`rx-shopping rx-stage-${stage}`} aria-label="Diabetes and marathon preparation shopping demo">
     <div className="rx-heading"><span className="stat-icon green"><ShoppingBag size={22}/></span><div><span className="eyebrow">DIABETES · MARATHON PREPARATION</span><h3>Your running kit, reviewed.</h3></div><span className="rx-demo">Demo</span></div>
     <p className="rx-caption">Example products for an existing care plan. Review training, fueling, and medication plans with your diabetes team.</p>
