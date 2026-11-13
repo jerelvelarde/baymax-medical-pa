@@ -1,4 +1,4 @@
-// Docker isolation adapted from OpenMuse b06caad; see services/computer/LICENSE.
+// Docker isolation adapted from OpenFuse b06caad; see services/computer/LICENSE.
 import { z } from "zod";
 import {
   type ComputerState,
@@ -312,7 +312,7 @@ export class DockerComputer implements ComputerBackend {
             "8s",
             "/usr/bin/python3",
             "-I",
-            "/opt/openmuse/files.py",
+            "/opt/openfuse/files.py",
           ],
           { timeoutMs: 10000, input, maxOutputBytes },
         ),

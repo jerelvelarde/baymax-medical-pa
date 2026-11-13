@@ -15,5 +15,5 @@ text and output, so retain them with the same care as the rest of the applicatio
 Do not share one deployment ID/data directory among concurrent server processes.
 
 Docker isolation checks, Dockerfile and files.py are adapted from
-[OpenMuse](https://github.com/CopilotKit/openmuse), commit
+[OpenFuse](https://github.com/CopilotKit/openmuse), commit
 `b06caad7005ac5b6d2b451752a3794a6ae1759c1`, under the included MIT LICENSE.

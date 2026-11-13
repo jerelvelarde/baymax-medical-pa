@@ -1,6 +1,6 @@
 # Baymax browser worker
 
-This independent service reuses the MIT-licensed [OpenMuse browser worker](https://github.com/CopilotKit/openmuse) at revision `b06caad7005ac5b6d2b451752a3794a6ae1759c1` (`apps/worker`). The package lockfile, Dockerfile, and upstream documentation are preserved. Local changes to the upstream browser manager and HTTP server add cancellation and handoff settlement; the original MIT attribution is retained. [LICENSE](./LICENSE) carries the original MIT license and [UPSTREAM_README.md](./UPSTREAM_README.md) documents the upstream API, network controls, and limits. Baymax's bridge lives in `src/mastra/computer/browser.ts`. The reused network tests retain the same license/provenance.
+This independent service reuses the MIT-licensed [OpenFuse browser worker](https://github.com/CopilotKit/openmuse) at revision `b06caad7005ac5b6d2b451752a3794a6ae1759c1` (`apps/worker`). The package lockfile, Dockerfile, and upstream documentation are preserved. Local changes to the upstream browser manager and HTTP server add cancellation and handoff settlement; the original MIT attribution is retained. [LICENSE](./LICENSE) carries the original MIT license and [UPSTREAM_README.md](./UPSTREAM_README.md) documents the upstream API, network controls, and limits. Baymax's bridge lives in `src/mastra/computer/browser.ts`. The reused network tests retain the same license/provenance.
 
 ## Local start
 
