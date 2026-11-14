@@ -24,6 +24,7 @@ test-results/
 playwright-report/
 mastra.db*
 .baymax-computer/
+.openfuse/
 .openmuse/
 
 # OS/editor

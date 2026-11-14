@@ -1,8 +1,8 @@
 # Baymax’s computer
 
-Give the existing Mastra agent a persistent browser and an isolated Linux terminal/files workspace, following OpenMuse’s MIT-licensed computer architecture. Preserve the current app and agent framework. Add a Computer view with Browser, Terminal, and Files tabs. The user and agent operate the same browser and volume.
+Give the existing Mastra agent a persistent browser and an isolated Linux terminal/files workspace, following OpenFuse’s MIT-licensed computer architecture. Preserve the current app and agent framework. Add a Computer view with Browser, Terminal, and Files tabs. The user and agent operate the same browser and volume.
 
-Reuse the OpenMuse browser worker and audited Docker isolation/file helpers with attribution and an upstream revision. Browser destinations are limited to public HTTP(S), with proxy-level DNS/IP validation. Terminal commands run only in a nonroot, network-disabled Docker container, never a host shell; its named /workspace volume persists across stops. Commands have a 30-second timeout, capped output, serialized execution, and saved receipts. Failed/uncertain commands are never automatically replayed.
+Reuse the OpenFuse browser worker and audited Docker isolation/file helpers with attribution and an upstream revision. Browser destinations are limited to public HTTP(S), with proxy-level DNS/IP validation. Terminal commands run only in a nonroot, network-disabled Docker container, never a host shell; its named /workspace volume persists across stops. Commands have a 30-second timeout, capped output, serialized execution, and saved receipts. Failed/uncertain commands are never automatically replayed.
 
 Enable access with server configuration and a private access key. Unlocking from the Computer view issues an expiring in-memory capability for API requests and Mastra request context, separate from model messages. Without that capability the agent cannot use any computer tool. Same-origin checks protect mutations. This remains the app’s current single-owner deployment; it does not introduce account authentication.
 

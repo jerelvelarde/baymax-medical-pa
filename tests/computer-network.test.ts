@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { isPublicIp, validatePublicUrl } from "../services/browser-worker/src/network.ts";
 
-// Reused from the MIT-licensed OpenMuse browser security tests (see worker README).
+// Reused from the MIT-licensed OpenFuse browser security tests (see worker README).
 test("browser rejects private, special-use and encoded IP addresses", async () => {
   const blocked = [
     "127.0.0.1",
