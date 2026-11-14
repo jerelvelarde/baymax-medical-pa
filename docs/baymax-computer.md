@@ -1,6 +1,6 @@
 # Baymax’s computer
 
-The Computer screen and Baymax’s `use-baymax-computer` tool share a persistent Chromium session and an isolated Linux workspace. Browser, Terminal, and Files are real operations. The integration adapts [OpenFuse](https://github.com/CopilotKit/openmuse) commit `b06caad7005ac5b6d2b451752a3794a6ae1759c1`; upstream MIT licenses and provenance are included in each service directory. Baymax keeps its existing Mastra agent, chat, and persistence.
+The Computer screen and Baymax’s `use-baymax-computer` tool share a persistent Chromium session and an isolated Linux workspace. Browser, Terminal, and Files are real operations. The integration adapts [OpenFuse](https://github.com/CopilotKit/openfuse) commit `b06caad7005ac5b6d2b451752a3794a6ae1759c1`; upstream MIT licenses and provenance are included in each service directory. Baymax keeps its existing Mastra agent, chat, and persistence.
 
 ## Start locally
 
